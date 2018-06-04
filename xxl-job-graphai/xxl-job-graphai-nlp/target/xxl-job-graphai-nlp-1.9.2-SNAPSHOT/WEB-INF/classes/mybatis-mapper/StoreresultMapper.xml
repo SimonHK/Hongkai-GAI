@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.graphai.dao.StoreresoultDao">
+
+    <!--表名 -->
+    <sql id="tableName">
+        storeresult
+    </sql>
+
+    <resultMap id="StoreresoultMap" type="com.graphai.model.Storeresult" >
+        <result column="id" property="id" />
+        <result column="datasource" property="datasource" />
+        <result column="eventclassification" property="eventclassification" />
+        <result column="ventcontent" property="ventcontent" />
+        <result column="timeofoccurrence" property="timeofoccurrence"/>
+        <result column="location" property="location"/>
+        <result column="abstracttext" property="abstracttext"/>
+        <result column="indbtime" property="indbtime"/>
+    </resultMap>
+    <!-- 字段 -->
+    <sql id="Base_Column_List">
+        id,
+        datasource,
+        eventclassification,
+        ventcontent,
+        timeofoccurrence,
+        location,
+        abstracttext,
+        indbtime
+    </sql>
+
+    <select id="pageList" parameterType="java.util.HashMap" resultMap="StoreresoultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM storeresult b where TO_DAYS(NOW()) = TO_DAYS(b.indbtime)
+    </select>
+
+    <insert id="save" parameterType="com.graphai.model.Storeresult">
+        INSERT INTO storeresult ( `id`,`datasource`, `eventclassification`, `ventcontent`,`timeofoccurrence`, `location`, `abstracttext`, `indbtime`)
+        values ( #{id},#{datasource}, #{eventclassification}, #{ventcontent}, #{timeofoccurrence}, #{location}, #{abstracttext}, #{indbtime});
+    </insert>
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO storeresult
+        ( `id`,`datasource`, `eventclassification`, `ventcontent`,`timeofoccurrence`, `location`, `abstracttext`, `indbtime`)
+        VALUES
+        <foreach collection ="list" index="index" item="com.graphai.model.Storeresult" separator =",">
+            ( #{id},#{datasource}, #{eventclassification}, #{ventcontent}, #{timeofoccurrence}, #{location}, #{abstracttext}, #{indbtime})
+        </foreach >
+    </insert>
+
+
+    <!-- GeneWisdom Auto Create -->
+</mapper>

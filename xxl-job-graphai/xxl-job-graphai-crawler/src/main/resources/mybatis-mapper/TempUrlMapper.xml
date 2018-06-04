@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.graphai.dao.TempUrlsDao">
+    <!--表名 -->
+    <sql id="tableName">
+        tempurls
+    </sql>
+
+    <resultMap id="TempurlsMap" type="com.graphai.pojo.Tempurls" >
+        <result column="tempurlid" property="tempurlid" />
+        <result column="tempurl" property="tempurl" />
+        <result column="deph" property="deph" />
+        <result column="title" property="title" />
+    </resultMap>
+    <!-- 字段 -->
+    <sql id="Base_Column_List">
+        tempurlid,
+        tempurl,
+        deph,
+        title
+    </sql>
+
+    <select id="pageList" parameterType="java.util.HashMap" resultMap="TempurlsMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM tempurls
+    </select>
+
+    <insert id="save" parameterType="com.graphai.pojo.Tempurls">
+        INSERT INTO tempurls ( `tempurlid`,`tempurl`, `deph`, `title`)
+        values ( #{tempurlid},#{tempurl}, #{deph}, #{title});
+    </insert>
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO tempurls
+        ( `tempurlid`,`tempurl`, `deph`, `title`)
+        VALUES
+        <foreach collection ="list" index="index" item="com.graphai.pojo.Tempurls" separator =",">
+            ( #{tempurlid},#{tempurl}, #{deph}, #{title})
+        </foreach >
+    </insert>
+
+
+    <!-- GeneWisdom Auto Create -->
+</mapper>

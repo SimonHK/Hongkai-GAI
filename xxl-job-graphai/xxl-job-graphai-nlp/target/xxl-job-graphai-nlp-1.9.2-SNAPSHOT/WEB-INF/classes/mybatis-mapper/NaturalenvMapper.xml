@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.graphai.dao.NaturalenvDao">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		Naturalenv
+	</sql>
+
+	<resultMap id="NaturalenvInfo" type="com.graphai.model.Naturalenv" >
+		<result column="id" property="id" />
+		<result column="nlptime" property="nlptime" />
+		<result column="nlpcontent" property="nlpcontent" />
+		<result column="nlptype" property="nlptype" />
+	</resultMap>
+	<!-- 字段 -->
+	<sql id="Base_Column_List">
+		id,
+		nlptime,
+		nlpcontent,
+		nlptype
+	</sql>
+
+	<select id="pageList" parameterType="java.util.HashMap" resultMap="NaturalenvInfo">
+		SELECT <include refid="Base_Column_List" />
+		FROM Naturalenv
+	</select>
+	
+
+	
+	<!-- GeneWisdom Auto Create -->
+</mapper>

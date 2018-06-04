@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.graphai.dao.CrawlercontentDao">
+
+    <!--表名 -->
+    <sql id="tableName">
+        crawlercontent
+    </sql>
+
+    <resultMap id="CrawlercontentMap" type="com.graphai.pojo.Crawlercontent" >
+        <result column="id" property="id" />
+        <result column="crawlerurl" property="crawlerurl" />
+        <result column="crawlercontent" property="crawlercontent" />
+        <result column="crawlertime" property="crawlertime" />
+    </resultMap>
+    <!-- 字段 -->
+    <sql id="Base_Column_List">
+        id,
+        crawlerurl,
+        crawlercontent,
+        crawlertime
+    </sql>
+
+    <select id="pageList" parameterType="java.util.HashMap" resultMap="CrawlercontentMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM crawlercontent
+    </select>
+
+    <insert id="save" parameterType="com.graphai.pojo.Crawlercontent">
+        INSERT INTO crawlercontent ( `id`,`crawlerurl`, `crawlercontent`, `crawlertime`)
+        values ( #{id},#{crawlerurl}, #{crawlercontent}, #{crawlertime});
+    </insert>
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO crawlercontent
+        ( `id`,`crawlerurl`, `crawlercontent`, `crawlertime`)
+        VALUES
+        <foreach collection ="list" index="index" item="com.graphai.pojo.Crawlercontent" separator =",">
+            ( #{id},#{crawlerurl}, #{crawlercontent}, #{crawlertime})
+        </foreach >
+    </insert>
+
+
+    <!-- GeneWisdom Auto Create -->
+</mapper>

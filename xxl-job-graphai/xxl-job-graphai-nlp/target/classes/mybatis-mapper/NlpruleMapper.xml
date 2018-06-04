@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.graphai.dao.NlpruleDao">
+
+    <!--表名 -->
+    <sql id="tableName">
+        Nlprule
+    </sql>
+
+    <resultMap id="NlpruleInfo" type="com.graphai.model.Nlprule" >
+        <result column="id" property="id" />
+        <result column="rulename" property="rulename" />
+        <result column="ruleformula" property="ruleformula" />
+        <result column="ruletype" property="ruletype" />
+        <result column="ruletime" property="ruletime"/>
+    </resultMap>
+    <!-- 字段 -->
+    <sql id="Base_Column_List">
+        id,
+        rulename,
+        ruleformula,
+        ruletype,
+        ruletime
+    </sql>
+
+    <select id="pageList" parameterType="java.util.HashMap" resultMap="NlpruleInfo">
+        SELECT <include refid="Base_Column_List" />
+        FROM Nlprule
+    </select>
+
+    <select id="pageListForRuleName" parameterType="java.util.HashMap" resultMap="NlpruleInfo">
+        SELECT <include refid="Base_Column_List"/>
+        FROM Nlprule t
+        WHERE t.rulename = #{urlName}
+    </select>
+
+
+    <!-- GeneWisdom Auto Create -->
+</mapper>

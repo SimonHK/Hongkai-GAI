@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.graphai.dao.PubEnvironmentDao">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		pubenvironment
+	</sql>
+
+	<resultMap id="PubEnvironmentInfo" type="com.graphai.model.PubEnvironment" >
+		<result column="id" property="id" />
+		<result column="nlpname" property="nlpname" />
+		<result column="nationid" property="nationid" />
+		<result column="ienvironid" property="ienvironid" />
+		<result column="naturlenvid" property="naturlenvid" />
+		<result column="industryid" property="industryid" />
+	</resultMap>
+	<!-- 字段 -->
+	<sql id="Base_Column_List">
+		id,
+		nlpname,
+		nationid,
+		ienvironid,
+		naturlenvid,
+		industryid
+	</sql>
+
+	<select id="pageList" parameterType="java.util.HashMap" resultMap="PubEnvironmentInfo">
+		SELECT <include refid="Base_Column_List" />
+		FROM pubenvironment
+	</select>
+	
+
+	
+	<!-- GeneWisdom Auto Create -->
+</mapper>

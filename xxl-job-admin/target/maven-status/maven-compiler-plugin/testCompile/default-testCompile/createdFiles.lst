@@ -1,0 +1,10 @@
+com/xxl/job/admin/dao/XxlJobRegistryDaoTest.class
+com/xxl/job/admin/controller/JobInfoControllerTest.class
+com/xxl/job/admin/dao/XxlJobGroupDaoTest.class
+com/xxl/job/admin/util/I18nUtilTest.class
+com/xxl/job/adminbiz/AdminBizTest.class
+com/xxl/job/admin/util/MailUtilTest.class
+com/xxl/job/admin/dao/XxlJobLogDaoTest.class
+com/xxl/job/admin/dao/XxlJobInfoDaoTest.class
+com/xxl/job/admin/dao/XxlJobLogGlueDaoTest.class
+com/xxl/job/admin/controller/AbstractSpringMvcTest.class

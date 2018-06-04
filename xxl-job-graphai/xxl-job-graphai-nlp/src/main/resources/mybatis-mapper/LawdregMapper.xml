@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.graphai.dao.LawdregDao">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		LAWDREG
+	</sql>
+
+	<resultMap id="LawdregInfo" type="com.graphai.model.Lawdreg" >
+		<result column="ID" property="ID" />
+
+		<result column="TITLE" property="TITLE" />
+		<result column="ORG" property="ORG" />
+		<result column="PUBTIME" property="PUBTIME" />
+
+		<result column="EXTIME" property="EXTIME" />
+		<result column="TEXTCONTENT1" property="TEXTCONTENT1" />
+
+		<result column="TEXTCONTENT2" property="TEXTCONTENT2" />
+		<result column="TEXTCONTENT3" property="TEXTCONTENT3" />
+
+		<result column="TEXTCONTENT4" property="TEXTCONTENT4" />
+
+	</resultMap>
+	<!-- 字段 -->
+	<sql id="Base_Column_List">
+		ID,	
+		TITLE,	
+		ORG,	
+		PUBTIME,	
+		EXTIME,	
+		TEXTCONTENT1,	
+		TEXTCONTENT2,	
+		TEXTCONTENT3,	
+		TEXTCONTENT4
+	</sql>
+
+	<select id="pageList" parameterType="java.util.HashMap" resultMap="LawdregInfo">
+		SELECT <include refid="Base_Column_List" />
+		FROM LAWDREG
+	</select>
+	
+
+	
+	<!-- GeneWisdom Auto Create -->
+</mapper>
