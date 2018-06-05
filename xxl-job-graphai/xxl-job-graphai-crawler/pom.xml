@@ -15,7 +15,6 @@
     <description>Executor project for spring</description>
     <url>http://www.graphai.com/</url>
 
-
     <dependencies>
         <!-- spring-webmvc -->
         <dependency>
@@ -129,6 +128,7 @@
         </dependency>
     </dependencies>
     <build>
+        <finalName>${artifactId}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
