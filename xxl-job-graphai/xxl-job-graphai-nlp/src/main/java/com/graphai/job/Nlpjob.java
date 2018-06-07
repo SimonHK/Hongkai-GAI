@@ -79,7 +79,7 @@ public class Nlpjob extends IJobHandler {
 
         /**获取规则内容*/
         List<Nlprule> nlprules = findNlprule(param);
-        XxlJobLogger.log("准备用于分析语料的规则数量为：【"+nlprules.size()+"】条");
+        //XxlJobLogger.log("准备用于分析语料的规则数量为：【"+nlprules.size()+"】条");
         /**
         //开始分析根据语料的切分段落后获取的的内容进行nlp分析，参数 sentenceCont 是摘要的数量，
         // 如果是一段内容摘要的数量可以设置为1，
@@ -87,7 +87,7 @@ public class Nlpjob extends IJobHandler {
         */
         List<RulePressObject> ruleformles = GraphAiUtils.ruleformles(nlprules, data,3);
 
-        XxlJobLogger.log("满足规则的语料为：【"+ruleformles.size()+"】条");
+        //XxlJobLogger.log("满足规则的语料为：【"+ruleformles.size()+"】条");
 
         /**处理分析结果*/
         List<RulePressObject> ls = getAnalysis(ruleformles);

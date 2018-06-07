@@ -138,38 +138,43 @@ public class GraphAiUtils {
                 //开始计算公式结果
                 String rep = s.replaceAll("\\[", "").replaceAll("\\]", "");
                 String s1 = GraphAiUtils.runString(rep.trim());
-                rulePressObject.setType(s1);
-                rulePressObject.setTextTime(crawlercontent.getCrawlertime());
-                rulePressObject.setTextFrom(crawlercontent.getCrawlerurl());
-                rulePressObject.setRuleType(rul.getRulename());
-                //将摘要存入对象
-                //使用之前清空操作用于新的内容
-                sb.setLength(0);
-                for(String sent:sentenceList){
-                    sb.append(sent).append(";");
+
+                Boolean isStore = Boolean.valueOf(s1);
+                /*如果匹配上了则打印并输出*/
+                if(isStore) {
+                    rulePressObject.setType(s1);
+                    rulePressObject.setTextTime(crawlercontent.getCrawlertime());
+                    rulePressObject.setTextFrom(crawlercontent.getCrawlerurl());
+                    rulePressObject.setRuleType(rul.getRulename());
+                    //将摘要存入对象
+                    //使用之前清空操作用于新的内容
+                    sb.setLength(0);
+                    for (String sent : sentenceList) {
+                        sb.append(sent).append(";");
+                    }
+                    rulePressObject.setAbstractText(sb.toString());
+                    ls.add(rulePressObject);
+                    //XxlJobLogger.log("----------------------------------------------------------------------");
+                    XxlJobLogger.log("公式类别：【" + rul.getRulename() + "】");
+                    //XxlJobLogger.log("公式内容：【" + rul.getRuleformula() + "】");
+                    // XxlJobLogger.log("分析内容：【"+pcrcontent1+"】");
+                    //XxlJobLogger.log("内容时间：【"+crawlercontent.getCrawlertime()+"】");
+                    XxlJobLogger.log("符合公式内容摘要：【" + sb.toString() + "】");
+                    //XxlJobLogger.log("内容出处：【"+crawlercontent.getCrawlerurl()+"】");
+                    //XxlJobLogger.log("解析结果：【"+s.trim()+"】");
+                    //XxlJobLogger.log("计算结果：【" + s1 + "】");
+                    XxlJobLogger.log("----------------------------------------------------------------------");
+                   // System.out.println("----------------------------------------------------------------------");
+                    System.out.println("公式类别：【" + rul.getRulename() + "】");
+                    //System.out.println("公式内容：【" + rul.getRuleformula() + "】");
+                    //System.out.println("分析内容：【"+pcrcontent1+"】");
+                    //System.out.println("内容时间：【"+crawlercontent.getCrawlertime()+"】");
+                    System.out.println("符合公式内容摘要：【" + sb.toString() + "】");
+                    //System.out.println("内容出处：【"+crawlercontent.getCrawlerurl()+"】");
+                    //System.out.println("解析结果：【"+s.trim()+"】");
+                    //System.out.println("计算结果：【" + s1 + "】");
+                    System.out.println("----------------------------------------------------------------------");
                 }
-                rulePressObject.setAbstractText(sb.toString());
-                ls.add(rulePressObject);
-                XxlJobLogger.log("----------------------------------------------------------------------");
-                XxlJobLogger.log("公式类别：【"+rul.getRulename()+"】");
-                XxlJobLogger.log("公式内容：【"+rul.getRuleformula()+"】");
-               // XxlJobLogger.log("分析内容：【"+pcrcontent1+"】");
-                //XxlJobLogger.log("内容时间：【"+crawlercontent.getCrawlertime()+"】");
-                XxlJobLogger.log("内容摘要：【"+sb.toString()+"】");
-                //XxlJobLogger.log("内容出处：【"+crawlercontent.getCrawlerurl()+"】");
-                //XxlJobLogger.log("解析结果：【"+s.trim()+"】");
-                XxlJobLogger.log("计算结果：【"+s1+"】");
-                XxlJobLogger.log("----------------------------------------------------------------------");
-                System.out.println("----------------------------------------------------------------------");
-                System.out.println("公式类别：【"+rul.getRulename()+"】");
-                System.out.println("公式内容：【"+rul.getRuleformula()+"】");
-                //System.out.println("分析内容：【"+pcrcontent1+"】");
-                //System.out.println("内容时间：【"+crawlercontent.getCrawlertime()+"】");
-                System.out.println("内容摘要：【"+sb.toString()+"】");
-                //System.out.println("内容出处：【"+crawlercontent.getCrawlerurl()+"】");
-                //System.out.println("解析结果：【"+s.trim()+"】");
-                System.out.println("计算结果：【"+s1+"】");
-                System.out.println("----------------------------------------------------------------------");
             }
         }
 
