@@ -79,7 +79,7 @@ public class GraphAiUtils {
      * @param rule //规则
      * @param texts //文本
      * @param sentenceCont //摘要数量
-     * */
+     * *//*
     public static List<RulePressObject> ruleformles(List<Nlprule> rule, List<Crawlercontent> texts,int sentenceCont) {
 
         if (sentenceCont <= 0 ){
@@ -140,7 +140,7 @@ public class GraphAiUtils {
                 String s1 = GraphAiUtils.runString(rep.trim());
 
                 Boolean isStore = Boolean.valueOf(s1);
-                /*如果匹配上了则打印并输出*/
+                *//*如果匹配上了则打印并输出*//*
                 if(isStore) {
                     rulePressObject.setType(s1);
                     rulePressObject.setTextTime(crawlercontent.getCrawlertime());
@@ -179,7 +179,7 @@ public class GraphAiUtils {
         }
 
         return ls;
-    }
+    }*/
 
 
     /**

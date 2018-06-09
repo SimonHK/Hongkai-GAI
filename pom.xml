@@ -16,7 +16,6 @@
 		<module>xxl-job-executor-samples</module>
 		<module>xxl-job-graphai</module>
 	</modules>
-
 	<properties>
 		<javax.servlet-api.version>3.0.1</javax.servlet-api.version>
 		<jsp-api.version>2.2</jsp-api.version>
