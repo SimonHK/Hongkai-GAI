@@ -283,7 +283,9 @@ public class Nlpjob extends IJobHandler {
         if (!StringUtils.isEmpty(param)) {
             if (TimeTools.isValidDate(param)) {
                 crawlercontents = crawlercontentDao.findPageListByTime(param);
-            } else {
+            } else if("init".equals(param)) {
+                crawlercontents = crawlercontentDao.firstPageList();
+            }else{
                 crawlercontents = crawlercontentDao.pageList();
             }
         } else {

@@ -29,6 +29,11 @@
         crawlertitle
     </sql>
 
+    <select id="firstPageList" parameterType="java.util.HashMap" resultMap="CrawlercontentMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM crawlercontent  b
+    </select>
+
     <select id="pageList" parameterType="java.util.HashMap" resultMap="CrawlercontentMap">
         SELECT <include refid="Base_Column_List" />
         FROM crawlercontent  b where TO_DAYS(NOW()) = TO_DAYS(b.nowtime)
