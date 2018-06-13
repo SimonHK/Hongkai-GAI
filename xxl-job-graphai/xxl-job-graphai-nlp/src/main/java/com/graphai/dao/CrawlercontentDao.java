@@ -10,6 +10,8 @@ public interface CrawlercontentDao {
 
     public List<Crawlercontent> pageList();
 
+    public List<Crawlercontent> firstPageList();
+
     public int save(Crawlercontent ienvironment);
 
     public void insertBatch(List<Crawlercontent> ienvironments) throws Exception;

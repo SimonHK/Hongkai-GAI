@@ -7,6 +7,7 @@ import com.hankcs.hanlp.corpus.tag.Nature;
 import com.hankcs.hanlp.dictionary.CustomDictionary;
 import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.common.Term;
+import com.hankcs.hanlp.tokenizer.BasicTokenizer;
 import com.mysql.jdbc.StringUtils;
 
 
@@ -49,7 +50,7 @@ public class GraphAiUtils {
         }
         // List<String> ls  = new ArrayList<>(0);
         // List<Term> seg = BasicTokenizer.SEGMENT.enableOrganizationRecognize(true).enableCustomDictionary(true).seg(texts);
-        Segment segment = HanLP.newSegment()
+        /*Segment segment = HanLP.newSegment()
                 .enableOrganizationRecognize(true)
                 .enableNameRecognize(true)
                 .enablePlaceRecognize(true)
@@ -61,8 +62,18 @@ public class GraphAiUtils {
                 //.enableOffset(true)
                 //.enablePartOfSpeechTagging(true)
                 .enableTranslatedNameRecognize(true)
-                ;
-        List<Term> seg = segment.seg(texts);
+                ;*/
+        //List<Term> seg = segment.seg(texts);
+        List<Term> seg = BasicTokenizer
+                .SEGMENT
+                .enableCustomDictionary(true)
+                .enableOrganizationRecognize(true)
+                .enableNameRecognize(true)
+                .enablePlaceRecognize(true)
+                .enableAllNamedEntityRecognize(true)
+                .enableNumberQuantifierRecognize(true)
+                .enableTranslatedNameRecognize(true)
+                .seg(texts);
         //System.out.println(seg);
         //断句
        /* List<List<Term>> lists = segment.seg2sentence(texts);
@@ -79,7 +90,7 @@ public class GraphAiUtils {
                 sb.append(word).append(",");
             }
             if (natu.equals(Nature.nt.toString().trim())) {
-                sblocal.append(word).append(",");
+
                 for(Locations locations:rule){
                     String locationid = locations.getLocationid();
                     String locationname = locations.getLocationname();
@@ -93,12 +104,16 @@ public class GraphAiUtils {
                     }
                     if(locationname.equals(word) || i > 0){
                         orgLocsid.append(locationid).append(",");
+                        sblocal.append(word).append(",");
                     }
                 }
             }
             if(natu.equals(Nature.mq.toString().trim())){
                 sbTime.append(word).append(",");
             }
+
+
+
         }
         String persionnames = GraphStringUtils.formatRepetition(sb.toString());
         sb.setLength(0);
@@ -114,7 +129,16 @@ public class GraphAiUtils {
 
         // StringBuffer sbOrg = new StringBuffer("");
         if(!StringUtils.isNullOrEmpty(orglocalIds)) {
-            for (Term tex1s : seg) {
+            AnalysisResult analysisResult = new AnalysisResult();
+            analysisResult.setAnalysisWord(orglocal);
+            analysisResult.setAnalysisSentence(texts);
+            analysisResult.setSentencePersonName(persionnames);
+            analysisResult.setSentenceTimes(timesb);
+            analysisResult.setLocationids(orglocalIds);
+            analysisResult.setAnalysisNature(Nature.nt.toString().trim());
+            analysisResults.add(analysisResult);
+
+            /*for (Term tex1s : seg) {
                 String natu = tex1s.nature.toString().trim();
                 String word = tex1s.word.toString().trim();
                 AnalysisResult analysisResult = new AnalysisResult();
@@ -127,22 +151,17 @@ public class GraphAiUtils {
                     String locationname = locations.getLocationname();
                     String locationalias = locations.getLocationalias();
                     if (word.equals(locationname) || isIndexOf(locationalias, word) && natu.equals(Nature.nt.toString().trim())) {
-                        //符合机构
                         analysisResult.setAnalysisNature(Nature.nt.toString().trim());
                         analysisResults.add(analysisResult);
                     } else if (word.equals(locationname) || isIndexOf(locationalias, word) && natu.equals(Nature.nr.toString().trim())) {
-                        //符合人名
                         analysisResult.setAnalysisNature(Nature.nr.toString().trim());
                         analysisResults.add(analysisResult);
                     } else if (word.equals(locationname) || isIndexOf(locationalias, word) && natu.equals(Nature.ns.toString().trim())) {
-                        //符合地名
                         analysisResult.setAnalysisNature(Nature.ns.toString().trim());
                         analysisResults.add(analysisResult);
                     }
                 }
-
-                //sbOrg.append(tex1s.nature.equals("nt"));
-            }
+            }*/
         }
         //取出公式关键词在句子中比对
         /*for (int sets = 0; sets < seg.size(); sets++) {
