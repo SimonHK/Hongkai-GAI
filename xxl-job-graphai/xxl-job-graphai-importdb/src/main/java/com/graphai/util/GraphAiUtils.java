@@ -9,6 +9,7 @@ import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.BasicTokenizer;
 import com.mysql.jdbc.StringUtils;
+import com.xxl.job.core.log.XxlJobLogger;
 import redis.clients.jedis.Jedis;
 
 
@@ -278,7 +279,8 @@ public class GraphAiUtils {
 
                 long startTime = System.currentTimeMillis();
                 Long dbSize = getDbSize();
-                System.out.println("开始遍历机构信息：" + startTime);
+                //System.out.println("开始遍历机构信息：" + startTime);
+                XxlJobLogger.log("开始遍历机构信息：" + startTime);
                 for (long ii = 1; ii < dbSize; ii++) {
                     List<String> hvals = jedis.hvals("id:" + String.valueOf(ii));
                     //System.out.print("[0]"+hvals.get(0)+"[1]"+hvals.get(0)+"[2]"+hvals.get(0));
@@ -293,7 +295,7 @@ public class GraphAiUtils {
                     String locationalias = locations.getLocationalias();
                     String[] split = locationalias.split(",");
                     int i = 0;
-                    System.out.println("分析词比对：【"+word+"】与机构【" + locationname+"】及别名【"+locationalias+"】");
+                    //System.out.println("分析词比对：【"+word+"】与机构【" + locationname+"】及别名【"+locationalias+"】");
                     for(String sp:split){
                         if(sp.equals(word) || word.contains(sp)){
                             i++;
@@ -302,12 +304,15 @@ public class GraphAiUtils {
                     if(locationname.equals(word) || i > 0 ){
                         orgLocsid.append(locationid).append(",");
                         sblocal.append(locationname).append(",");
-                        System.out.println("满足结果：【"+word+"】与机构【" + locationname+"】及别名【"+locationalias+"】");
+                        //System.out.println("满足结果：【"+word+"】与机构【" + locationname+"】及别名【"+locationalias+"】");
+                        XxlJobLogger.log("满足结果：【"+word+"】与机构【" + locationname+"】及别名【"+locationalias+"】");
+
                     }
                 }
                 long endTime = System.currentTimeMillis(); //获取结束时间
-                System.out.print("结束结束遍历时间：" + endTime);
-                System.out.println("遍历处理运行时间： " + (endTime - startTime) + "ms");
+                XxlJobLogger.log("遍历处理运行时间： " + (endTime - startTime) + "ms");
+               // System.out.print("结束结束遍历时间：" + endTime);
+                //System.out.println("遍历处理运行时间： " + (endTime - startTime) + "ms");
             }
         }
         String persionnames = GraphStringUtils.formatRepetition(sbnr.toString());
