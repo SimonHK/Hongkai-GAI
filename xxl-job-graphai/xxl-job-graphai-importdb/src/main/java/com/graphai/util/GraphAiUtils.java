@@ -9,6 +9,7 @@ import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.BasicTokenizer;
 import com.mysql.jdbc.StringUtils;
+import redis.clients.jedis.Jedis;
 
 
 import java.io.UnsupportedEncodingException;
@@ -16,6 +17,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GraphAiUtils {
+
+    private static Jedis jedis;
+
+    static {
+        //连接服务器
+        jedis = new Jedis("127.0.0.1", 6379);
+        //权限认证
+//      jedis.auth("");
+
+    }
 
     /**
      * 将规则与文本进行比对返回相应的规则公式结果和对应的文本。
@@ -48,22 +59,7 @@ public class GraphAiUtils {
                 CustomDictionary.insert(locationname, "ns 1024");
             }
         }
-        // List<String> ls  = new ArrayList<>(0);
-        // List<Term> seg = BasicTokenizer.SEGMENT.enableOrganizationRecognize(true).enableCustomDictionary(true).seg(texts);
-        /*Segment segment = HanLP.newSegment()
-                .enableOrganizationRecognize(true)
-                .enableNameRecognize(true)
-                .enablePlaceRecognize(true)
-                .enableCustomDictionary(true)
-                .enableAllNamedEntityRecognize(true)
-                //.enableIndexMode(true)
-                //.enableMultithreading(true)
-                .enableNumberQuantifierRecognize(true)
-                //.enableOffset(true)
-                //.enablePartOfSpeechTagging(true)
-                .enableTranslatedNameRecognize(true)
-                ;*/
-        //List<Term> seg = segment.seg(texts);
+
         List<Term> seg = BasicTokenizer
                 .SEGMENT
                 .enableCustomDictionary(true)
@@ -79,7 +75,7 @@ public class GraphAiUtils {
        /* List<List<Term>> lists = segment.seg2sentence(texts);
         System.out.println(lists);*/
         //取出要比对的句子
-        StringBuffer sb = new StringBuffer("");
+        StringBuffer sbnr = new StringBuffer("");
         StringBuffer sblocal = new StringBuffer("");
         StringBuffer sbTime = new StringBuffer("");
         StringBuffer orgLocsid = new StringBuffer("");
@@ -87,7 +83,7 @@ public class GraphAiUtils {
             String natu = tes.nature.toString().trim();
             String word = tes.word.toString().trim();
             if (natu.equals(Nature.nr.toString().trim())) {
-                sb.append(word).append(",");
+                sbnr.append(word).append(",");
             }
             if (natu.equals(Nature.nt.toString().trim())) {
 
@@ -98,25 +94,25 @@ public class GraphAiUtils {
                     String[] split = locationalias.split(",");
                     int i = 0;
                     for(String sp:split){
-                        if(sp.equals(word)){
+                        if(sp.equals(word) || word.contains(sp)){
                             i++;
                         }
                     }
-                    if(locationname.equals(word) || i > 0){
+                    if(locationname.equals(word) || i > 0 ){
                         orgLocsid.append(locationid).append(",");
-                        sblocal.append(word).append(",");
+                        sblocal.append(locationname).append(",");
                     }
                 }
             }
-            if(natu.equals(Nature.mq.toString().trim())){
+            /*if(natu.equals(Nature.mq.toString().trim())){
                 sbTime.append(word).append(",");
-            }
+            }*/
 
 
 
         }
-        String persionnames = GraphStringUtils.formatRepetition(sb.toString());
-        sb.setLength(0);
+        String persionnames = GraphStringUtils.formatRepetition(sbnr.toString());
+        sbnr.setLength(0);
 
         String orglocal = GraphStringUtils.formatRepetition(sblocal.toString());
         sblocal.setLength(0);
@@ -126,6 +122,8 @@ public class GraphAiUtils {
 
         String orglocalIds = GraphStringUtils.formatRepetition(orgLocsid.toString());
         orgLocsid.setLength(0);
+
+
 
         // StringBuffer sbOrg = new StringBuffer("");
         if(!StringUtils.isNullOrEmpty(orglocalIds)) {
@@ -204,7 +202,148 @@ public class GraphAiUtils {
         return analysisResults;
     }
 
-    private static boolean isIndexOf(String source, String word){
+    /**
+     * 将规则与文本进行比对返回相应的规则公式结果和对应的文本。
+     *
+     * @param ruleNature //关键字词性（自定义这些词性）
+     * @param texts      //文本
+     */
+    public static List<AnalysisResult> ruleformles(String ruleNature, String texts) {
+
+        List<AnalysisResult> analysisResults = new ArrayList<>(0);
+
+        /*long startTime = System.currentTimeMillis();
+        Long dbSize = getDbSize();
+        System.out.println("开始加入机构词时间：" + startTime);
+        for (long i = 1; i < dbSize; i++) {
+            List<String> hvals = jedis.hvals("id:" + String.valueOf(i));
+            //System.out.print("[0]"+hvals.get(0)+"[1]"+hvals.get(0)+"[2]"+hvals.get(0));
+            Locations locations = new Locations();
+            List<Locations> locationsList = new ArrayList<>(0);
+            locations.setLocationid(hvals.get(2));
+            locations.setLocationalias(hvals.get(1));
+            locations.setLocationname(hvals.get(0));
+            locationsList.add(locations);
+            String locationname = locations.getLocationname();
+            String locationnameas = locations.getLocationalias();
+            String[] split = locationnameas.split(",");
+            if (ruleNature.equals(Nature.nt.toString().trim())) {
+                CustomDictionary.insert(locationname, "nt 1024");
+                for(String loceas : split){
+                    if(!StringUtils.isNullOrEmpty(loceas)){
+                        CustomDictionary.insert(loceas, "nt 1024");
+                    }
+                }
+
+            }
+            if (ruleNature.equals(Nature.nr.toString().trim())) {
+                CustomDictionary.insert(locationname, "nr 1024");
+            }
+            if (ruleNature.equals(Nature.ns.toString().trim())) {
+                CustomDictionary.insert(locationname, "ns 1024");
+            }
+        }
+        long endTime = System.currentTimeMillis(); //获取结束时间
+        System.out.print("结束加载机构时间：" + endTime);
+        System.out.println("程序运行时间： " + (endTime - startTime) + "ms");
+*/
+
+        List<Term> seg = BasicTokenizer
+                .SEGMENT
+                .enableCustomDictionary(true)
+                .enableOrganizationRecognize(true)
+                .enableNameRecognize(true)
+                .enablePlaceRecognize(true)
+                .enableAllNamedEntityRecognize(true)
+                .enableNumberQuantifierRecognize(true)
+                .enableTranslatedNameRecognize(true)
+                .seg(texts);
+        //System.out.println(seg);
+        //断句
+       /* List<List<Term>> lists = segment.seg2sentence(texts);
+        System.out.println(lists);*/
+        //取出要比对的句子
+        StringBuffer sbnr = new StringBuffer("");
+        StringBuffer sblocal = new StringBuffer("");
+        StringBuffer sbTime = new StringBuffer("");
+        StringBuffer orgLocsid = new StringBuffer("");
+
+        for (Term tes : seg) {
+            String natu = tes.nature.toString().trim();
+            String word = tes.word.toString().trim();
+            if (natu.equals(Nature.nr.toString().trim())) {
+                sbnr.append(word).append(",");
+            }
+            if (natu.equals(Nature.nt.toString().trim())) {
+
+                long startTime = System.currentTimeMillis();
+                Long dbSize = getDbSize();
+                System.out.println("开始遍历机构信息：" + startTime);
+                for (long ii = 1; ii < dbSize; ii++) {
+                    List<String> hvals = jedis.hvals("id:" + String.valueOf(ii));
+                    //System.out.print("[0]"+hvals.get(0)+"[1]"+hvals.get(0)+"[2]"+hvals.get(0));
+                    Locations locations = new Locations();
+                    List<Locations> locationsList = new ArrayList<>(0);
+                    locations.setLocationid(hvals.get(2));
+                    locations.setLocationalias(hvals.get(1));
+                    locations.setLocationname(hvals.get(0));
+                    locationsList.add(locations);
+                    String locationid = locations.getLocationid();
+                    String locationname = locations.getLocationname();
+                    String locationalias = locations.getLocationalias();
+                    String[] split = locationalias.split(",");
+                    int i = 0;
+                    System.out.println("分析词比对：【"+word+"】与机构【" + locationname+"】及别名【"+locationalias+"】");
+                    for(String sp:split){
+                        if(sp.equals(word) || word.contains(sp)){
+                            i++;
+                        }
+                    }
+                    if(locationname.equals(word) || i > 0 ){
+                        orgLocsid.append(locationid).append(",");
+                        sblocal.append(locationname).append(",");
+                        System.out.println("满足结果：【"+word+"】与机构【" + locationname+"】及别名【"+locationalias+"】");
+                    }
+                }
+                long endTime = System.currentTimeMillis(); //获取结束时间
+                System.out.print("结束结束遍历时间：" + endTime);
+                System.out.println("遍历处理运行时间： " + (endTime - startTime) + "ms");
+            }
+        }
+        String persionnames = GraphStringUtils.formatRepetition(sbnr.toString());
+        sbnr.setLength(0);
+
+        String orglocal = GraphStringUtils.formatRepetition(sblocal.toString());
+        sblocal.setLength(0);
+
+        String timesb = GraphStringUtils.formatRepetition(sbTime.toString());
+        sbTime.setLength(0);
+
+        String orglocalIds = GraphStringUtils.formatRepetition(orgLocsid.toString());
+        orgLocsid.setLength(0);
+
+        if(!StringUtils.isNullOrEmpty(orglocalIds)) {
+            AnalysisResult analysisResult = new AnalysisResult();
+            analysisResult.setAnalysisWord(orglocal);
+            analysisResult.setAnalysisSentence(texts);
+            analysisResult.setSentencePersonName(persionnames);
+            analysisResult.setSentenceTimes(timesb);
+            analysisResult.setLocationids(orglocalIds);
+            analysisResult.setAnalysisNature(Nature.nt.toString().trim());
+            analysisResults.add(analysisResult);
+        }
+
+        return analysisResults;
+    }
+
+
+        public static Long getDbSize() {
+            return jedis.dbSize();
+        }
+
+
+
+        private static boolean isIndexOf(String source, String word){
         boolean index = false;
         String s = null;
         String s1 = null;

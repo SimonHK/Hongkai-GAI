@@ -7,8 +7,13 @@ import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.IJobHandler;
 import com.xxl.job.core.handler.annotation.JobHandler;
 import com.xxl.job.core.log.XxlJobLogger;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.ResponseBody;
+import redis.clients.jedis.Jedis;
 
 
 import javax.annotation.Resource;
@@ -34,72 +39,44 @@ import static java.util.stream.Collectors.toCollection;
 @Component
 public class ImportdbJob extends IJobHandler {
     @Resource
-    private XxlJobInfoDao xxlJobInfoDao;
-    @Resource
-    private TestDao testDao;
-    @Resource
     private StoreresoultDao storeresoultDao;
     @Resource
     private EventlibrarynewsDao eventlibrarynewsDao;
     @Resource
     private LocationsDao locationsDao;
 
+
     //数据来源默认ds0
     @Override
     public ReturnT<String> execute(String param) throws Exception {
+
         boolean empty = StringUtils.isEmpty(param);
         if (!empty) {
             //查询出nlp初处理库结果
-            List<Storeresult> storeResultData  = findStoreResultData(param);
+            List<Storeresult> storeResultData = findStoreResultData(param);
 
             //将结果进行NLP的机构过滤分析
             List<Eventlibrarynews> evnews = new ArrayList<>(0);
             Eventlibrarynews en = null;
             //查询已有的机构内容
             Page locationsInfoPage = new Page();
-            int pageIndex=1;
-            do {
-                locationsInfoPage = getLocationsInfoByDymanic(pageIndex);
-                pageIndex = locationsInfoPage.getNextPage();
-                /*System.out.println("当前页是："+locationsInfoByDymanic.getPageIndex());
-                System.out.println("下一页是："+locationsInfoByDymanic.getNextPage());
-                System.out.println("上一页是："+locationsInfoByDymanic.getPrePage());
-                System.out.println("总记录数："+locationsInfoByDymanic.getRecord());
-                System.out.println("总页数是："+locationsInfoByDymanic.getTotalPageCount());
-                System.out.println("页大小是："+locationsInfoByDymanic.getPageSize());*/
-                List<Locations> locationsList = locationsInfoPage.getLocationsList();
-                /*for (Locations locations : locationsList) {
-                    System.out.print("机构名称："+locations.getLocationname());
-                    System.out.print(";");
-                }*/
-                for (Storeresult store : storeResultData) {
-                    //实体名称需要分析
-                    String ventcontent = store.getVentcontent();//待分析内容
-                    //StringBuffer sb  = new StringBuffer("");//定义一个机构或实体字符串
-                    //for(Locations locs : locationsData){
-                    //String locationname = locs.getLocationname();//实体名
-                    //String locationalias = locs.getLocationalias();//实体别名
-                    List<AnalysisResult> analysisResultList = GraphAiUtils.ruleformles(locationsList, "nt", ventcontent);
-                    /*Iterator<AnalysisResult> i = analysisResultList.iterator();
-                    analysisResultList = new ArrayList<>(0);
-                    while (i.hasNext()) {
-                        //System.out.println(i.next());
-                        analysisResultList.add(i.next());
-                        //sb.append(i.next()).append(",");
-                    }*/
-                    //List<AnalysisResult> unique =  analysisResultList.stream().distinct().collect(Collectors.toList());
 
-                  /*  List<AnalysisResult> unique = analysisResultList.stream().collect(
-                            collectingAndThen(
-                                    toCollection(() -> new TreeSet<>(comparingLong(AnalysisResult::getLocationids()))), ArrayList::new)
-                    );*/
+            //oldprecc(storeResultData);
+
+            for (Storeresult store : storeResultData) {
+                //实体名称需要分析
+                String ventcontent = store.getVentcontent();//待分析内容
+                List<AnalysisResult> analysisResultList = new ArrayList<>(0);
+                //analysisResultList = GraphAiUtils.ruleformles(locationsList, "nt", ventcontent);
+                analysisResultList = GraphAiUtils.ruleformles("nt", ventcontent);
+                if (analysisResultList.size() > 0) {
                     //对象去重复
                     Set<String> nameSet = new HashSet<>();
                     List<AnalysisResult> analysisResultsDistinctByLocationids = analysisResultList.stream()
                             .filter(e -> nameSet.add(e.getLocationids()))
                             .collect(Collectors.toList());
 
-                    if(analysisResultsDistinctByLocationids.size() > 0) {
+                    if (analysisResultsDistinctByLocationids.size() > 0) {
                         for (AnalysisResult analysisRes : analysisResultsDistinctByLocationids) {
                             en = new Eventlibrarynews();
                             String uuid = UuidUtil.get32UUID();
@@ -134,9 +111,9 @@ public class ImportdbJob extends IJobHandler {
                             XxlJobLogger.log("==============================================================");
                         }
                     }
-                    // }
                 }
-            }while (locationsInfoPage.getPageIndex() != locationsInfoPage.getTotalPageCount());
+            }
+
 
         } else {
             XxlJobLogger.log("请输入要处理数据的日期时间如：2018-06-08");
@@ -144,6 +121,138 @@ public class ImportdbJob extends IJobHandler {
 
         return SUCCESS;
     }
+
+
+    private void oldprecc(List<Storeresult> storeResultData) {
+        Page locationsInfoPage;
+        Eventlibrarynews en;
+        int pageIndex = 1;
+        do {
+            locationsInfoPage = getLocationsInfoByDymanic(pageIndex);
+            List<Locations> locationsList = locationsInfoPage.getLocationsList();
+            pageIndex = locationsInfoPage.getNextPage();
+
+            for (Storeresult store : storeResultData) {
+                //实体名称需要分析
+                String ventcontent = store.getVentcontent();//待分析内容
+
+                List<AnalysisResult> analysisResultList = GraphAiUtils.ruleformles(locationsList, "nt", ventcontent);
+
+                if (analysisResultList.size() > 0) {
+                    //对象去重复
+                    Set<String> nameSet = new HashSet<>();
+                    List<AnalysisResult> analysisResultsDistinctByLocationids = analysisResultList.stream()
+                            .filter(e -> nameSet.add(e.getLocationids()))
+                            .collect(Collectors.toList());
+
+                    if (analysisResultsDistinctByLocationids.size() > 0) {
+                        for (AnalysisResult analysisRes : analysisResultsDistinctByLocationids) {
+                            en = new Eventlibrarynews();
+                            String uuid = UuidUtil.get32UUID();
+                            en.setEventid(uuid);
+                            en.setOriginallink(store.getDatasource());
+                            en.setEventtype(store.getEventclassification());
+                            String nowTime = TimeTools.getNowTime();
+                            en.setEtime(nowTime);
+                            en.setEntityname(analysisRes.getAnalysisWord());
+                            //人名需要分析
+                            en.setPersoname(analysisRes.getSentencePersonName());
+                            //实体机构ID需要依托实体名称分析后的结果进行查询并取出机构ID
+                            en.setIcid(analysisRes.getLocationids());
+                            //事件发生事件
+                            en.setEventtime("发表时间:[" + store.getTimeofoccurrence() + "],内容包含时间:[" + analysisRes.getSentenceTimes() + "]");
+                            en.setEntitycontent(store.getVentcontent());
+                            en.setAbstracttext(store.getAbstracttext());
+
+                            //将机构和人员内容进行拼装入库
+                            saveEventLibraryNews(en);
+                            //evnews.add(en);
+                            XxlJobLogger.log("==============================================================");
+                            //XxlJobLogger.log("*  入库事件ID：[" + uuid + "]");
+                            //XxlJobLogger.log("*  入库事件来源：[" + store.getDatasource() + "]");
+                            XxlJobLogger.log("*  入库事件类型：[" + store.getEventclassification() + "]");
+                            //XxlJobLogger.log("*  入库事件时间：[" + nowTime + "]");
+                            XxlJobLogger.log("*  实体或机构：[" + analysisRes.getAnalysisWord() + "]");
+                            //XxlJobLogger.log("*  事件包含人名：[" + analysisRes.getSentencePersonName() + "]");
+                            XxlJobLogger.log("*  事件实体机构ID：[" + analysisRes.getLocationids() + "]");
+                            //XxlJobLogger.log("*  事件摘要：[" + store.getAbstracttext() + "]");
+                            //XxlJobLogger.log("*  时间：发表时间:[" + store.getTimeofoccurrence() + "],内容包含时间:[" + analysisRes.getSentenceTimes() + "]");
+                            XxlJobLogger.log("==============================================================");
+                        }
+                    }
+                }
+            }
+        } while (locationsInfoPage.getPageIndex() != locationsInfoPage.getTotalPageCount());
+    }
+
+
+    public void testRedis() {
+
+
+        //机构同位词处理
+                /*
+                    StringBuffer sb  = new StringBuffer("");
+                    for(Locations locations:locationsList){
+                        String locationid = "M"+locations.getLocationid()+"=";
+                        String locationname = locations.getLocationname()+" ";
+                        String replace = locations.getLocationalias().replace(",", " ");
+                        sb.append(locationid).append(" ").append(locationname).append(replace).append(System.getProperty("line.separator"));
+
+                    }
+                    TxtGraphaiExport.creatTxtFile("CoreSynonym2");
+                    TxtGraphaiExport.writeTxtFile(sb.toString());*/
+                    /*System.out.println("剩余："+(locationsInfoPage.getTotalPageCount()-locationsInfoPage.getPageIndex()));
+                System.out.println("====================");
+                */
+
+       /* Map<String,Object> map = new HashMap<String,Object>();
+        String result = "";
+
+        redisDaoImpl.delete("fh0");											//删除
+        redisDaoImpl.delete("fh");											//删除
+        redisDaoImpl.delete("fh1");											//删除
+        redisDaoImpl.delete("fh2");											//删除
+
+        System.out.println(redisDaoImpl.addString("fh0","opopopo"));		//存储字符串
+        System.out.println("获取字符串:"+redisDaoImpl.get("fh0"));			//获取字符串
+
+        result += "获取字符串:"+redisDaoImpl.get("fh0")+",";
+
+        Map<String, String> jmap = new HashMap<String, String>();
+        jmap.put("name", "fhadmin");
+        jmap.put("age", "22");
+        jmap.put("qq", "313596790");
+        System.out.println(redisDaoImpl.addMap("fh", jmap));				//存储Map
+        System.out.println("获取Map:"+redisDaoImpl.getMap("fh"));			//获取Map
+
+        result += "获取Map:"+redisDaoImpl.getMap("fh")+",";
+
+        List<String> list = new ArrayList<String>();
+        list.add("ssss");
+        list.add("bbbb");
+        list.add("cccc");
+        redisDaoImpl.addList("fh1", list);									//存储List
+        System.out.println("获取List:"+redisDaoImpl.getList("fh1"));			//获取List
+
+        result += "获取List:"+redisDaoImpl.getList("fh1")+",";
+
+        Set<String> set = new HashSet<String>();
+        set.add("wwww");
+        set.add("eeee");
+        set.add("rrrr");
+        redisDaoImpl.addSet("fh2", set);									//存储Set
+        System.out.println("获取Set:"+redisDaoImpl.getSet("fh2"));			//获取Set
+
+        result += "获取Set:"+redisDaoImpl.getSet("fh2")+",";
+
+        map.put("result", result);
+
+        return AppUtil.returnObject(new PageData(), map);*/
+        //获取字符串
+        TestRedis testRedis = new TestRedis();
+        testRedis.testString();
+    }
+
 
     //获取NLP已经初步分析的结果
     public List<Storeresult> findStoreResultData() {
@@ -198,11 +307,12 @@ public class ImportdbJob extends IJobHandler {
     }
 
     //获取机构地域信息
-    public List<Locations> findLocationsData(int stratRow,int endRow ) {
+    public List<Locations> findLocationsData(int stratRow, int endRow) {
         XxlJobLogger.log("变更数据源！");
         DataSourceContextHolder.setDbType("ds2");     //注意这里在调用userMapper前切换到ds1的数据源
-        List<Locations> locations = locationsDao.getlocationCountByDymanic(stratRow,endRow);
-        XxlJobLogger.log("查询机构即地域内容【" + locations.size() + "】");
+        List<Locations> locations = locationsDao.getlocationCountByDymanic(stratRow, endRow);
+        XxlJobLogger.log("查询机构即地域内容【" + locations.size() + "】起始【" + stratRow + "】结束【" + endRow + "】");
+        XxlJobLogger.log("剩余【" + (locations.size() - endRow) + "】起始【" + stratRow + "】结束【" + endRow + "】");
         restoreDefaultDataSource();
         XxlJobLogger.log("恢复默认数据源！");
         return locations;
@@ -226,7 +336,7 @@ public class ImportdbJob extends IJobHandler {
         int save = 0;
         DataSourceContextHolder.setDbType("ds2");     //注意这里在调用userMapper前切换到ds1的数据源
         //for (Eventlibrarynews eventlibrarynews1 : eventlibrarynews) {
-            save = eventlibrarynewsDao.save(eventlibrarynews);
+        save = eventlibrarynewsDao.save(eventlibrarynews);
         //}
         restoreDefaultDataSource();
         XxlJobLogger.log("恢复默认数据源！");
@@ -241,41 +351,41 @@ public class ImportdbJob extends IJobHandler {
     }
 
 
-
     /**
      * @return
      */
     public Page getLocationsInfoByDymanic(int pageIndex) {
-        Page page=new Page();
+        Page page = new Page();
         page.setPageIndex(pageIndex);      //当前页
-        int reCount= countLocationsData();
+        int reCount = countLocationsData();
         page.setRecord(reCount);           //总记录数
-        HashMap parMap=new HashMap();
-        parMap.put("stratRow",page.getSartRow());
-        parMap.put("endRow",page.getEndRow());
+        HashMap parMap = new HashMap();
+        parMap.put("stratRow", page.getSartRow());
+        parMap.put("endRow", page.getEndRow());
         try {
-            List<Locations> locationsData = findLocationsData(page.getSartRow(),page.getEndRow());
+            List<Locations> locationsData = findLocationsData(page.getSartRow(), page.getEndRow());
             page.setLocationsList(locationsData);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return page;
     }
+
     //分页查询机构地域内容
-    public Page getLocationsInfoByDymanic(Locations locations,int pageIndex) {
-        Page page=new Page();
+    public Page getLocationsInfoByDymanic(Locations locations, int pageIndex) {
+        Page page = new Page();
         page.setPageIndex(pageIndex);      //当前页
-        int reCount= countLocationsData();
+        int reCount = countLocationsData();
         page.setRecord(reCount);           //总记录数
-        List<Locations> houseList=new ArrayList<Locations>();
-        HashMap parMap=new HashMap();
-        parMap.put("locationname",locations.getLocationname());
-        parMap.put("locationid",locations.getLocationid());
+        List<Locations> houseList = new ArrayList<Locations>();
+        HashMap parMap = new HashMap();
+        parMap.put("locationname", locations.getLocationname());
+        parMap.put("locationid", locations.getLocationid());
         parMap.put("locationalias", locations.getLocationalias());
-        parMap.put("stratRow",page.getSartRow());
-        parMap.put("endRow",page.getEndRow());
+        parMap.put("stratRow", page.getSartRow());
+        parMap.put("endRow", page.getEndRow());
         try {
-            List<Locations> locationsData = findLocationsData(page.getSartRow(),page.getEndRow());
+            List<Locations> locationsData = findLocationsData(page.getSartRow(), page.getEndRow());
             page.setLocationsList(locationsData);
         } catch (Exception e) {
             e.printStackTrace();
@@ -284,18 +394,18 @@ public class ImportdbJob extends IJobHandler {
     }
 
     //测试分页查询效果
-    public void test(){
-        int pageIndex=1;
+    public void test() {
+        int pageIndex = 1;
         Page locationsInfoByDymanic = getLocationsInfoByDymanic(pageIndex);
-        System.out.println("当前页是："+locationsInfoByDymanic.getPageIndex());
-        System.out.println("下一页是："+locationsInfoByDymanic.getNextPage());
-        System.out.println("上一页是："+locationsInfoByDymanic.getPrePage());
-        System.out.println("总记录数："+locationsInfoByDymanic.getRecord());
-        System.out.println("总页数是："+locationsInfoByDymanic.getTotalPageCount());
-        System.out.println("页大小是："+locationsInfoByDymanic.getPageSize());
+        System.out.println("当前页是：" + locationsInfoByDymanic.getPageIndex());
+        System.out.println("下一页是：" + locationsInfoByDymanic.getNextPage());
+        System.out.println("上一页是：" + locationsInfoByDymanic.getPrePage());
+        System.out.println("总记录数：" + locationsInfoByDymanic.getRecord());
+        System.out.println("总页数是：" + locationsInfoByDymanic.getTotalPageCount());
+        System.out.println("页大小是：" + locationsInfoByDymanic.getPageSize());
         List<Locations> locationsList = locationsInfoByDymanic.getLocationsList();
         for (Locations locations : locationsList) {
-            System.out.print("机构名称："+locations.getLocationname());
+            System.out.print("机构名称：" + locations.getLocationname());
             System.out.print(";");
         }
     }
