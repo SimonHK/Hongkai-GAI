@@ -27,6 +27,9 @@ public class Storeresult {
     public String abstracttext;
     //数据入库时间
     public String indbtime;
+    //事件风险级别
+    public String ruletype;
+
 
     public String getIndbtime() {
         return indbtime;
@@ -90,5 +93,13 @@ public class Storeresult {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getRuletype() {
+        return ruletype;
+    }
+
+    public void setRuletype(String ruletype) {
+        this.ruletype = ruletype;
     }
 }

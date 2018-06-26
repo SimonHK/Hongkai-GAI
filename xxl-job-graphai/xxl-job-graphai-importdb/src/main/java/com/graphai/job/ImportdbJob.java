@@ -64,7 +64,7 @@ public class ImportdbJob extends IJobHandler {
             //oldprecc(storeResultData);
 
             for (Storeresult store : storeResultData) {
-                //实体名称需要分析
+                //实体名称需xx要分析
                 String ventcontent = store.getVentcontent();//待分析内容
                 List<AnalysisResult> analysisResultList = new ArrayList<>(0);
                 //analysisResultList = GraphAiUtils.ruleformles(locationsList, "nt", ventcontent);
@@ -94,6 +94,7 @@ public class ImportdbJob extends IJobHandler {
                             en.setEventtime("发表时间:[" + store.getTimeofoccurrence() + "],内容包含时间:[" + analysisRes.getSentenceTimes() + "]");
                             en.setEntitycontent(store.getVentcontent());
                             en.setAbstracttext(store.getAbstracttext());
+                            en.setRuletype(store.getRuletype());
 
                             //将机构和人员内容进行拼装入库
                             saveEventLibraryNews(en);
@@ -123,7 +124,7 @@ public class ImportdbJob extends IJobHandler {
     }
 
 
-    private void oldprecc(List<Storeresult> storeResultData) {
+    /*private void oldprecc(List<Storeresult> storeResultData) {
         Page locationsInfoPage;
         Eventlibrarynews en;
         int pageIndex = 1;
@@ -183,7 +184,7 @@ public class ImportdbJob extends IJobHandler {
                 }
             }
         } while (locationsInfoPage.getPageIndex() != locationsInfoPage.getTotalPageCount());
-    }
+    }*/
 
 
     public void testRedis() {

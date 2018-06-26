@@ -22,6 +22,8 @@ public class Eventlibrarynews {
 
     public String abstracttext;
 
+    public String ruletype;
+
     public String getAbstracttext() {
         return abstracttext;
     }
@@ -100,5 +102,13 @@ public class Eventlibrarynews {
 
     public void setEventtime(String eventtime) {
         this.eventtime = eventtime;
+    }
+
+    public String getRuletype() {
+        return ruletype;
+    }
+
+    public void setRuletype(String ruletype) {
+        this.ruletype = ruletype;
     }
 }

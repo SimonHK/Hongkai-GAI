@@ -16,6 +16,7 @@
         <result column="location" property="location"/>
         <result column="abstracttext" property="abstracttext"/>
         <result column="indbtime" property="indbtime"/>
+        <result column="ruletype" property="ruletype"/>
     </resultMap>
     <!-- 字段 -->
     <sql id="Base_Column_List">
@@ -26,7 +27,8 @@
         timeofoccurrence,
         location,
         abstracttext,
-        indbtime
+        indbtime,
+        ruletype
     </sql>
 
     <select id="pageList" parameterType="java.util.HashMap" resultMap="StoreresoultMap">
@@ -35,16 +37,16 @@
     </select>
 
     <insert id="save" parameterType="com.graphai.model.Storeresult">
-        INSERT INTO storeresult ( `id`,`datasource`, `eventclassification`, `ventcontent`,`timeofoccurrence`, `location`, `abstracttext`, `indbtime`)
-        values ( #{id},#{datasource}, #{eventclassification}, #{ventcontent}, #{timeofoccurrence}, #{location}, #{abstracttext}, #{indbtime});
+        INSERT INTO storeresult ( `id`,`datasource`, `eventclassification`, `ventcontent`,`timeofoccurrence`, `location`, `abstracttext`, `indbtime`, `ruletype`)
+        values ( #{id},#{datasource}, #{eventclassification}, #{ventcontent}, #{timeofoccurrence}, #{location}, #{abstracttext}, #{indbtime}, #{ruletype});
     </insert>
 
     <insert id="insertBatch" parameterType="java.util.List">
         INSERT INTO storeresult
-        ( `id`,`datasource`, `eventclassification`, `ventcontent`,`timeofoccurrence`, `location`, `abstracttext`, `indbtime`)
+        ( `id`,`datasource`, `eventclassification`, `ventcontent`,`timeofoccurrence`, `location`, `abstracttext`, `indbtime`, `ruletype`)
         VALUES
         <foreach collection ="list" index="index" item="com.graphai.model.Storeresult" separator =",">
-            ( #{id},#{datasource}, #{eventclassification}, #{ventcontent}, #{timeofoccurrence}, #{location}, #{abstracttext}, #{indbtime})
+            ( #{id},#{datasource}, #{eventclassification}, #{ventcontent}, #{timeofoccurrence}, #{location}, #{abstracttext}, #{indbtime}, #{ruletype})
         </foreach >
     </insert>
 

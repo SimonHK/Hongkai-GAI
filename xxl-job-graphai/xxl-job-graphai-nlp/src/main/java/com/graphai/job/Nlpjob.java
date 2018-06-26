@@ -119,7 +119,7 @@ public class Nlpjob extends IJobHandler {
             storeresult.setVentcontent(rPressObject.getTextContent());
             storeresult.setDatasource(rPressObject.getTextFrom());
             storeresult.setTimeofoccurrence(rPressObject.getTextTime());
-            storeresult.setEventclassification(rPressObject.getRuleType());
+            storeresult.setEventclassification(rPressObject.getRuletype());
             storeresult.setAbstracttext(rPressObject.getAbstractText());
             storeresult.setLocation("");
             String nowTime = TimeTools.getNowTime();
@@ -127,7 +127,7 @@ public class Nlpjob extends IJobHandler {
             inDb = saveStoreresult(storeresult);
             XxlJobLogger.log("入库时间是：【" + nowTime + "】");
             XxlJobLogger.log("内容时间是：【" + rPressObject.getTextTime() + "】");
-            XxlJobLogger.log("在规则《" + rPressObject.getRuleType() + "》的公式：【" + rPressObject.getRuleText() + "】");
+            XxlJobLogger.log("在规则《" + rPressObject.getRuletype() + "》的公式：【" + rPressObject.getRuleText() + "】");
             XxlJobLogger.log("符合分析计算结果为《" + rPressObject.getType() + "》");
             XxlJobLogger.log("内容摘要：【" + rPressObject.getAbstractText() + "】");
             XxlJobLogger.log("入库内容是：【" + rPressObject.getTextContent() + "】");
@@ -141,15 +141,16 @@ public class Nlpjob extends IJobHandler {
         storeresult.setVentcontent(rPressObject.getTextContent());
         storeresult.setDatasource(rPressObject.getTextFrom());
         storeresult.setTimeofoccurrence(rPressObject.getTextTime());
-        storeresult.setEventclassification(rPressObject.getRuleType());
+        storeresult.setEventclassification(rPressObject.getRuleName());
         storeresult.setAbstracttext(rPressObject.getAbstractText());
+        storeresult.setRuletype(rPressObject.getRuletype());
         storeresult.setLocation("");
         String nowTime = TimeTools.getNowTime();
         storeresult.setIndbtime(nowTime);
         inDb = saveStoreresult(storeresult);
         //XxlJobLogger.log("入库时间是：【" + nowTime + "】");
         //XxlJobLogger.log("内容时间是：【" + rPressObject.getTextTime() + "】");
-        XxlJobLogger.log("在规则《" + rPressObject.getRuleType() + "》的公式：【" + rPressObject.getRuleText() + "】");
+        XxlJobLogger.log("在规则《" + rPressObject.getRuleName() + "》的公式：【" + rPressObject.getRuleText()+ "】风险级别：【"+rPressObject.getRuletype()+"】");
         //XxlJobLogger.log("符合分析计算结果为《" + rPressObject.getType() + "》");
         XxlJobLogger.log("内容摘要：【" + rPressObject.getAbstractText() + "】");
         //XxlJobLogger.log("入库内容是：【" + rPressObject.getTextContent() + "】");
@@ -440,7 +441,8 @@ public class Nlpjob extends IJobHandler {
                     rulePressObject.setType(s1);
                     rulePressObject.setTextTime(crawlercontent.getCrawlertime());
                     rulePressObject.setTextFrom(crawlercontent.getCrawlerurl());
-                    rulePressObject.setRuleType(rul.getRulename());
+                    rulePressObject.setRuletype(rul.getRuletype());
+                    rulePressObject.setRuleName(rul.getRulename());
                     //将摘要存入对象
                     //使用之前清空操作用于新的内容
                     sb.setLength(0);

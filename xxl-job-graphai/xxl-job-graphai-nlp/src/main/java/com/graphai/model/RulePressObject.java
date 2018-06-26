@@ -4,7 +4,7 @@ public class RulePressObject {
 
 
     //规则公式类别
-    public String ruleType = "";
+    public String ruletype = "";
 
     //规则公式
     public String ruleText = "";
@@ -23,6 +23,9 @@ public class RulePressObject {
     //摘要内容
     public String abstractText = "";
 
+    //规则公式名称
+    public String ruleName ="";
+
     public String getAbstractText() {
         return abstractText;
     }
@@ -31,12 +34,12 @@ public class RulePressObject {
         this.abstractText = abstractText;
     }
 
-    public String getRuleType() {
-        return ruleType;
+    public String getRuletype() {
+        return ruletype;
     }
 
-    public void setRuleType(String ruleType) {
-        this.ruleType = ruleType;
+    public void setRuletype(String ruletype) {
+        this.ruletype = ruletype;
     }
 
     public String getTextTime() {
@@ -77,5 +80,13 @@ public class RulePressObject {
 
     public void setTextContent(String textContent) {
         this.textContent = textContent;
+    }
+
+    public String getRuleName() {
+        return ruleName;
+    }
+
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
     }
 }

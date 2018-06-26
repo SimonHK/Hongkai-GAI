@@ -268,7 +268,8 @@ public class GraphAiUtils {
         StringBuffer sblocal = new StringBuffer("");
         StringBuffer sbTime = new StringBuffer("");
         StringBuffer orgLocsid = new StringBuffer("");
-
+        long startTime = System.currentTimeMillis();
+        XxlJobLogger.log("start 处理运行[" + startTime+"]");
         for (Term tes : seg) {
             String natu = tes.nature.toString().trim();
             String word = tes.word.toString().trim();
@@ -276,45 +277,26 @@ public class GraphAiUtils {
                 sbnr.append(word).append(",");
             }
             if (natu.equals(Nature.nt.toString().trim())) {
-
-                long startTime = System.currentTimeMillis();
-                Long dbSize = getDbSize();
+                //Long dbSize = getDbSize();
                 //System.out.println("开始遍历机构信息：" + startTime);
-                XxlJobLogger.log("开始遍历机构信息：" + startTime);
-                for (long ii = 1; ii < dbSize; ii++) {
-                    List<String> hvals = jedis.hvals("id:" + String.valueOf(ii));
-                    //System.out.print("[0]"+hvals.get(0)+"[1]"+hvals.get(0)+"[2]"+hvals.get(0));
-                    Locations locations = new Locations();
-                    List<Locations> locationsList = new ArrayList<>(0);
-                    locations.setLocationid(hvals.get(2));
-                    locations.setLocationalias(hvals.get(1));
-                    locations.setLocationname(hvals.get(0));
-                    locationsList.add(locations);
-                    String locationid = locations.getLocationid();
-                    String locationname = locations.getLocationname();
-                    String locationalias = locations.getLocationalias();
-                    String[] split = locationalias.split(",");
-                    int i = 0;
-                    //System.out.println("分析词比对：【"+word+"】与机构【" + locationname+"】及别名【"+locationalias+"】");
-                    for(String sp:split){
-                        if(sp.equals(word) || word.contains(sp)){
-                            i++;
-                        }
-                    }
-                    if(locationname.equals(word) || i > 0 ){
-                        orgLocsid.append(locationid).append(",");
-                        sblocal.append(locationname).append(",");
-                        //System.out.println("满足结果：【"+word+"】与机构【" + locationname+"】及别名【"+locationalias+"】");
-                        XxlJobLogger.log("满足结果：【"+word+"】与机构【" + locationname+"】及别名【"+locationalias+"】");
+                //for (long ii = 1; ii < dbSize; ii++) {
 
-                    }
+                    //System.out.print("[0]"+hvals.get(0)+"[1]"+hvals.get(0)+"[2]"+hvals.get(0));
+                String s = jedis.get(word);
+                if(!StringUtils.isNullOrEmpty(s)){
+                    orgLocsid.append(s).append(",");
+                    sblocal.append(word).append(",");
+                    //System.out.println("满足结果：【"+word+"】与机构【" + locationname+"】及别名【"+locationalias+"】");
+                    XxlJobLogger.log("满足location结果：【"+word+"】与locationID【" + s+"】");
                 }
-                long endTime = System.currentTimeMillis(); //获取结束时间
-                XxlJobLogger.log("遍历处理运行时间： " + (endTime - startTime) + "ms");
+                //}
+
                // System.out.print("结束结束遍历时间：" + endTime);
                 //System.out.println("遍历处理运行时间： " + (endTime - startTime) + "ms");
             }
         }
+        long endTime = System.currentTimeMillis(); //获取结束时间
+        XxlJobLogger.log("end 处理运行时间： " + (endTime - startTime) + "ms");
         String persionnames = GraphStringUtils.formatRepetition(sbnr.toString());
         sbnr.setLength(0);
 

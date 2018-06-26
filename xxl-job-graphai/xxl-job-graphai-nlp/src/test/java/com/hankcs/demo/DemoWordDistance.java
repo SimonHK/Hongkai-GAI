@@ -24,7 +24,7 @@ public class DemoWordDistance
     {
         String[] wordArray = new String[]
                 {
-                        "香蕉",
+                       /* "香蕉",
                         "苹果",
                         "白菜",
                         "水果",
@@ -45,9 +45,21 @@ public class DemoWordDistance
                         "孩子",
                         "教室",
                         "教师",
-                        "会计",
+                        "会计",*/
+                        "新宇联安信息科技有限公司",
+                        "新宇联安",
+                        "北京新宇",
+                        "联安",
+                        "蝶应",
+                        "蝶应智能",
+                        "北京蝶应智能科技有限公司",
+                        "花旗",
+                        "花旗银行",
+                        "中国花旗银行",
+                        "城祥贝尔再生资源",
                 };
         System.out.printf("%-5s\t%-5s\t%-10s\t%-5s\n", "词A", "词B", "语义距离", "语义相似度");
+       // CoreSynonymDictionary.rewrite("新宇联安科技有限公司 新宇 联安 新宇联安 联安科技 北京新宇");
         for (String a : wordArray)
         {
             for (String b : wordArray)
