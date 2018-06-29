@@ -16,6 +16,7 @@ import redis.clients.jedis.Jedis;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class GraphAiUtils {
 
@@ -213,42 +214,6 @@ public class GraphAiUtils {
 
         List<AnalysisResult> analysisResults = new ArrayList<>(0);
 
-        /*long startTime = System.currentTimeMillis();
-        Long dbSize = getDbSize();
-        System.out.println("开始加入机构词时间：" + startTime);
-        for (long i = 1; i < dbSize; i++) {
-            List<String> hvals = jedis.hvals("id:" + String.valueOf(i));
-            //System.out.print("[0]"+hvals.get(0)+"[1]"+hvals.get(0)+"[2]"+hvals.get(0));
-            Locations locations = new Locations();
-            List<Locations> locationsList = new ArrayList<>(0);
-            locations.setLocationid(hvals.get(2));
-            locations.setLocationalias(hvals.get(1));
-            locations.setLocationname(hvals.get(0));
-            locationsList.add(locations);
-            String locationname = locations.getLocationname();
-            String locationnameas = locations.getLocationalias();
-            String[] split = locationnameas.split(",");
-            if (ruleNature.equals(Nature.nt.toString().trim())) {
-                CustomDictionary.insert(locationname, "nt 1024");
-                for(String loceas : split){
-                    if(!StringUtils.isNullOrEmpty(loceas)){
-                        CustomDictionary.insert(loceas, "nt 1024");
-                    }
-                }
-
-            }
-            if (ruleNature.equals(Nature.nr.toString().trim())) {
-                CustomDictionary.insert(locationname, "nr 1024");
-            }
-            if (ruleNature.equals(Nature.ns.toString().trim())) {
-                CustomDictionary.insert(locationname, "ns 1024");
-            }
-        }
-        long endTime = System.currentTimeMillis(); //获取结束时间
-        System.out.print("结束加载机构时间：" + endTime);
-        System.out.println("程序运行时间： " + (endTime - startTime) + "ms");
-*/
-
         List<Term> seg = BasicTokenizer
                 .SEGMENT
                 .enableCustomDictionary(true)
@@ -269,7 +234,7 @@ public class GraphAiUtils {
         StringBuffer sbTime = new StringBuffer("");
         StringBuffer orgLocsid = new StringBuffer("");
         long startTime = System.currentTimeMillis();
-        XxlJobLogger.log("start 处理运行[" + startTime+"]");
+        XxlJobLogger.log("处理当前事件运行开始时间[" + startTime+"]");
         for (Term tes : seg) {
             String natu = tes.nature.toString().trim();
             String word = tes.word.toString().trim();
@@ -282,12 +247,18 @@ public class GraphAiUtils {
                 //for (long ii = 1; ii < dbSize; ii++) {
 
                     //System.out.print("[0]"+hvals.get(0)+"[1]"+hvals.get(0)+"[2]"+hvals.get(0));
-                String s = jedis.get(word);
-                if(!StringUtils.isNullOrEmpty(s)){
-                    orgLocsid.append(s).append(",");
+                //System.out.println("debug::::::::"+word);
+                //String s = jedis.get("2005d1f9f805e5cc4e52df0015c0ee93");
+                String ssss = MD5.stringToMsqlMD5(word);
+               // System.out.println("中文转MD="+ssss);
+                Map<String, String> stringStringMap = jedis.hgetAll(ssss);
+                String locationid = stringStringMap.get("locationid");
+                //System.out.println("============="+locationid);
+                if(!StringUtils.isNullOrEmpty(locationid)){
+                    orgLocsid.append(locationid).append(",");
                     sblocal.append(word).append(",");
                     //System.out.println("满足结果：【"+word+"】与机构【" + locationname+"】及别名【"+locationalias+"】");
-                    XxlJobLogger.log("满足location结果：【"+word+"】与locationID【" + s+"】");
+                    XxlJobLogger.log("满足location结果：【"+word+"】与locationID【" + locationid+"】");
                 }
                 //}
 
@@ -296,7 +267,7 @@ public class GraphAiUtils {
             }
         }
         long endTime = System.currentTimeMillis(); //获取结束时间
-        XxlJobLogger.log("end 处理运行时间： " + (endTime - startTime) + "ms");
+        XxlJobLogger.log("处理当前事件运行结束时间： " + (endTime - startTime) + "ms");
         String persionnames = GraphStringUtils.formatRepetition(sbnr.toString());
         sbnr.setLength(0);
 
@@ -347,26 +318,5 @@ public class GraphAiUtils {
 
     }
 
-    public static void main(String[] args) {
-        String testCase = "2018年4月12日我在上海林原科技有限公司兼职工作，新浪美股路透中文网讯，于泓楷经常带着马云在台川喜宴餐厅吃饭，偶尔去开元地中海影城看电影。通中非基金黄光裕在国家性质的投资机构共事，其坐落在北京市复兴门外大街。";
-
-        List<Locations> locations = new ArrayList<>(0);
-
-        Locations locations1 = new Locations();
-        locations1.setLocationalias("复兴门外大街");
-        locations1.setLocationid("12132131");
-        locations1.setLocationname("北京市复兴门外大街");
-        locations.add(locations1);
-        Locations locations2 = new Locations();
-        locations2.setLocationalias("中华产业园");
-        locations2.setLocationid("12132132");
-        locations2.setLocationname("产业园");
-        locations.add(locations2);
-
-        //List<AnalysisResult> ruleformles = ruleformles(locations, "ns", testCase);
-        /*for (AnalysisResult analysisResult : ruleformles) {
-            System.out.println("["+analysisResult.getSentenceTimes()+"][" + analysisResult.getAnalysisWord() + "][" + analysisResult.getAnalysisNature() + "][" + analysisResult.getSentencePersonName() + "][" + analysisResult.getAnalysisSentence() + "]");
-        }*/
-    }
 
 }

@@ -62,7 +62,7 @@ public class ImportdbJob extends IJobHandler {
             Page locationsInfoPage = new Page();
 
             //oldprecc(storeResultData);
-
+            int size = storeResultData.size();
             for (Storeresult store : storeResultData) {
                 //实体名称需xx要分析
                 String ventcontent = store.getVentcontent();//待分析内容
@@ -113,6 +113,9 @@ public class ImportdbJob extends IJobHandler {
                         }
                     }
                 }
+                size = size-1;
+                XxlJobLogger.log("剩余待处理事件【"+size+"】条");
+
             }
 
 
