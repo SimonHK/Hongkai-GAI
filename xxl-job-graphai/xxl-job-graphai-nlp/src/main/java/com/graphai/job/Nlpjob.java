@@ -3,10 +3,7 @@ package com.graphai.job;
 import com.alibaba.druid.util.StringUtils;
 import com.graphai.dao.*;
 import com.graphai.model.*;
-import com.graphai.util.DataSourceContextHolder;
-import com.graphai.util.GraphAiUtils;
-import com.graphai.util.TimeTools;
-import com.graphai.util.UuidUtil;
+import com.graphai.util.*;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.corpus.occurrence.Occurrence;
 import com.hankcs.hanlp.corpus.occurrence.PairFrequency;
@@ -78,7 +75,6 @@ public class Nlpjob extends IJobHandler {
         /**获取要分析的数据*/
         List<Crawlercontent> data = findData(param);
         XxlJobLogger.log("当前获取准备分析的语料为：【" + data.size() + "】条");
-
         /**获取规则内容*/
         List<Nlprule> nlprules = findNlprule(param);
         //XxlJobLogger.log("准备用于分析语料的规则数量为：【"+nlprules.size()+"】条");
@@ -87,7 +83,7 @@ public class Nlpjob extends IJobHandler {
          // 如果是一段内容摘要的数量可以设置为1，
          //如果语料为一片文章可以多设几条摘要信息。
          */
-        List<RulePressObject> ruleformles = ruleformles(nlprules, data, 3);
+        List<RulePressObject> ruleformles = ruleformles(nlprules, data, 1);
 
         //XxlJobLogger.log("满足规则的语料为：【"+ruleformles.size()+"】条");
 
@@ -398,85 +394,99 @@ public class Nlpjob extends IJobHandler {
         for (Nlprule rul : rule) {
             //System.out.println(rul);
             HanLP.Config.ShowTermNature = false;
+            //texts 内容分段处理
             for (Crawlercontent crawlercontent : texts) {
-                List<Term> seg = BasicTokenizer.SEGMENT.enableCustomDictionary(true).seg(rul.getRuleformula());
-                String pcrcontent1 = GraphAiUtils.filterString(crawlercontent.getCrawlercontent()).trim();
-                List<Term> tex1 = BasicTokenizer.SEGMENT.enableCustomDictionary(true).seg(pcrcontent1);
-                List<String> sentenceList = HanLP.extractSummary(pcrcontent1, sentenceCont);
-                //取出要比对的句子
-                // StringBuffer sbOrg = new StringBuffer("");
-                //使用之前清空操作
-                sb.setLength(0);
-                for (Term tex1s : tex1) {
-                    sb.append(tex1s.word).append(",");
-                    //sbOrg.append(tex1s.nature.equals("nt"));
-                }
-                //取出公式关键词在句子中比对
-                for (int sets = 0; sets < seg.size(); sets++) {
-                    Term str = seg.get(sets);
-                    String word = str.word;
-                    String nature = str.nature.toString();
-                    //手动增加词
-                    int i = sb.toString().indexOf(word);
-                    //if(word.in)
-                    if (i >= 0) {
-                        seg.set(sets, new Term("true", Nature.nx));
-                        //(seg.get(sets).word).replaceAll(word,"true");
-                    } else if (!"w".equals(nature.trim())) {
-                        seg.set(sets, new Term("false", Nature.nx));
-                    }
-                    // System.out.println("【"+word+"】出现次数！【"+i+"】");
-                }
-                rulePressObject = new RulePressObject();
-                String s = seg.toString().replaceAll(",", "").replaceAll("\\+", "||").replaceAll("\\*", "&&");
-                rulePressObject.setRuleText(rul.getRuleformula());
-                rulePressObject.setTextContent(pcrcontent1);
-                //开始计算公式结果
-                String rep = s.replaceAll("\\[", "").replaceAll("\\]", "");
-                String s1 = GraphAiUtils.runString(rep.trim());
-
-                Boolean isStore = Boolean.valueOf(s1);
-                /*如果匹配上了则打印并输出*/
-                if (isStore) {
-                    rulePressObject.setType(s1);
-                    rulePressObject.setTextTime(crawlercontent.getCrawlertime());
-                    rulePressObject.setTextFrom(crawlercontent.getCrawlerurl());
-                    rulePressObject.setRuletype(rul.getRuletype());
-                    rulePressObject.setRuleName(rul.getRulename());
-                    //将摘要存入对象
-                    //使用之前清空操作用于新的内容
+                //texts 内容分段处理
+                String htmltext = crawlercontent.getHtmltext();
+                String url = crawlercontent.getCrawlerurl();
+                String ip = UrlPrecces.gotIp(url);
+                XxlJobLogger.log("开始分析来源：【" + url+ "】的网页内容！");
+                WebSitSplit webSitSplit = new WebSitSplit();
+                String websitsplit = webSitSplit.websitsplit(WebSitSplitEnum.OTHER);
+                String[] split = htmltext.trim().split(websitsplit);
+                XxlJobLogger.log("开始网页内容开始断句处理！当前内容分段数量【"+split.length+"】");
+                for(String snhtmltext:split){
+                    //String substring = snhtmltext.substring(snhtmltext.indexOf("<p>") + 3).trim();
+                    List<Term> seg = BasicTokenizer.SEGMENT.enableCustomDictionary(true).seg(rul.getRuleformula());
+                    String pcrcontent1 = GraphAiUtils.filterString(snhtmltext);
+                    List<Term> tex1 = BasicTokenizer.SEGMENT.enableCustomDictionary(true).seg(pcrcontent1);
+                    List<String> sentenceList = HanLP.extractSummary(pcrcontent1, sentenceCont);
+                    //取出要比对的句子
+                    // StringBuffer sbOrg = new StringBuffer("");
+                    //使用之前清空操作
                     sb.setLength(0);
-                    for (String sent : sentenceList) {
-                        sb.append(sent).append(";");
+                    for (Term tex1s : tex1) {
+                        sb.append(tex1s.word).append(",");
+                        //sbOrg.append(tex1s.nature.equals("nt"));
                     }
-                    rulePressObject.setAbstractText(sb.toString());
+                    //取出公式关键词在句子中比对
+                    for (int sets = 0; sets < seg.size(); sets++) {
+                        Term str = seg.get(sets);
+                        String word = str.word;
+                        String nature = str.nature.toString();
+                        //手动增加词
+                        int i = sb.toString().indexOf(word);
+                        //if(word.in)
+                        if (i >= 0) {
+                            seg.set(sets, new Term("true", Nature.nx));
+                            //(seg.get(sets).word).replaceAll(word,"true");
+                        } else if (!"w".equals(nature.trim())) {
+                            seg.set(sets, new Term("false", Nature.nx));
+                        }
+                        // System.out.println("【"+word+"】出现次数！【"+i+"】");
+                    }
+                    rulePressObject = new RulePressObject();
+                    String s = seg.toString().replaceAll(",", "").replaceAll("\\+", "||").replaceAll("\\*", "&&");
+                    rulePressObject.setRuleText(rul.getRuleformula());
+                    rulePressObject.setTextContent(pcrcontent1);
+                    //开始计算公式结果
+                    String rep = s.replaceAll("\\[", "").replaceAll("\\]", "");
+                    String s1 = GraphAiUtils.runString(rep.trim());
 
-                    /**处理分析结果*/
-                    int i = inDbOperation(rulePressObject);
-                    //XxlJobLogger.log("符合规则的内容一共有：【" + ls.size() + "】条！");
+                    Boolean isStore = Boolean.valueOf(s1);
+                    /*如果匹配上了则打印并输出*/
+                    if (isStore) {
+                        rulePressObject.setType(s1);
+                        rulePressObject.setTextTime(crawlercontent.getCrawlertime());
+                        rulePressObject.setTextFrom(crawlercontent.getCrawlerurl());
+                        rulePressObject.setRuletype(rul.getRuletype());
+                        rulePressObject.setRuleName(rul.getRulename());
+                        //将摘要存入对象
+                        //使用之前清空操作用于新的内容
+                        sb.setLength(0);
+                        for (String sent : sentenceList) {
+                            sb.append(sent).append(";");
+                        }
+                        rulePressObject.setAbstractText(sb.toString());
 
-                    ls.add(rulePressObject);
-                    //XxlJobLogger.log("----------------------------------------------------------------------");
-                    //XxlJobLogger.log("公式类别：【" + rul.getRulename() + "】");
-                    //XxlJobLogger.log("公式内容：【" + rul.getRuleformula() + "】");
-                    // XxlJobLogger.log("分析内容：【"+pcrcontent1+"】");
-                    //XxlJobLogger.log("内容时间：【"+crawlercontent.getCrawlertime()+"】");
-                    //XxlJobLogger.log("符合公式内容摘要：【" + sb.toString() + "】");
-                    //XxlJobLogger.log("内容出处：【"+crawlercontent.getCrawlerurl()+"】");
-                    //XxlJobLogger.log("解析结果：【"+s.trim()+"】");
-                    //XxlJobLogger.log("计算结果：【" + s1 + "】");
-                    //XxlJobLogger.log("----------------------------------------------------------------------");
-                    // System.out.println("----------------------------------------------------------------------");
-                    //System.out.println("公式类别：【" + rul.getRulename() + "】");
-                    //System.out.println("公式内容：【" + rul.getRuleformula() + "】");
-                    //System.out.println("分析内容：【"+pcrcontent1+"】");
-                    //System.out.println("内容时间：【"+crawlercontent.getCrawlertime()+"】");
-                    //System.out.println("符合公式内容摘要：【" + sb.toString() + "】");
-                    //System.out.println("内容出处：【"+crawlercontent.getCrawlerurl()+"】");
-                    //System.out.println("解析结果：【"+s.trim()+"】");
-                    //System.out.println("计算结果：【" + s1 + "】");
-                    //System.out.println("----------------------------------------------------------------------");
+                        /**处理分析结果*/
+                        int i = inDbOperation(rulePressObject);
+
+                        ls.add(rulePressObject);
+                        //XxlJobLogger.log("----------------------------------------------------------------------");
+                        //XxlJobLogger.log("公式类别：【" + rul.getRulename() + "】");
+                        //XxlJobLogger.log("公式内容：【" + rul.getRuleformula() + "】");
+                        // XxlJobLogger.log("分析内容：【"+pcrcontent1+"】");
+                        //XxlJobLogger.log("内容时间：【"+crawlercontent.getCrawlertime()+"】");
+                        //XxlJobLogger.log("符合公式内容摘要：【" + sb.toString() + "】");
+                        //XxlJobLogger.log("内容出处：【"+crawlercontent.getCrawlerurl()+"】");
+                        //XxlJobLogger.log("解析结果：【"+s.trim()+"】");
+                        //XxlJobLogger.log("计算结果：【" + s1 + "】");
+                        //XxlJobLogger.log("----------------------------------------------------------------------");
+                        // System.out.println("----------------------------------------------------------------------");
+                        //System.out.println("公式类别：【" + rul.getRulename() + "】");
+                        //System.out.println("公式内容：【" + rul.getRuleformula() + "】");
+                        //System.out.println("分析内容：【"+pcrcontent1+"】");
+                        //System.out.println("内容时间：【"+crawlercontent.getCrawlertime()+"】");
+                        //System.out.println("符合公式内容摘要：【" + sb.toString() + "】");
+                        //System.out.println("内容出处：【"+crawlercontent.getCrawlerurl()+"】");
+                        //System.out.println("解析结果：【"+s.trim()+"】");
+                        //System.out.println("计算结果：【" + s1 + "】");
+                        //System.out.println("----------------------------------------------------------------------");
+                    }
                 }
+                //texts 处理结束
+                XxlJobLogger.log("当前符合条数为：【" + ls.size() + "】条！");
             }
         }
 
