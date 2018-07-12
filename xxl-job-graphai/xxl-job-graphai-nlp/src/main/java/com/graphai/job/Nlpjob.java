@@ -398,7 +398,7 @@ public class Nlpjob extends IJobHandler {
             for (Crawlercontent crawlercontent : texts) {
                 //texts 内容分段处理
                 String htmltext = crawlercontent.getHtmltext();
-                if (!StringUtils.isEmpty(htmltext.trim())) {
+                if (!StringUtils.isEmpty(htmltext)) {
                     String url = crawlercontent.getCrawlerurl();
                     String ip = UrlPrecces.gotIp(url);
                     XxlJobLogger.log("开始分析来源：【" + url + "】的网页内容！");
