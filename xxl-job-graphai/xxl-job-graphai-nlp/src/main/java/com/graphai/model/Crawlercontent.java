@@ -3,21 +3,21 @@ package com.graphai.model;
 
 public class Crawlercontent {
 
-    private String id;
+    private String id = "";
 
-    private String crawlerurl;
+    private String crawlerurl = "";
 
-    private String crawlercontent;
+    private String crawlercontent ="";
 
-    private String crawlertime;
+    private String crawlertime = "";
 
-    private String crawlertitle;
+    private String crawlertitle ="";
 
-    private String crawlerform;
+    private String crawlerform ="";
 
-    private String nowtime;
+    private String nowtime ="";
 
-    private String htmltext;
+    private String htmltext ="";
 
     public String getCrawlertitle() {
         return crawlertitle;
