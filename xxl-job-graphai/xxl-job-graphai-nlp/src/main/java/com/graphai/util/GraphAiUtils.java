@@ -36,7 +36,9 @@ public class GraphAiUtils {
     public static String pfilterString(String str){
         return str.trim().replaceAll("[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】\\s+\\s*\\t]+", "");
     }
-
+    /**
+     * 字符串过滤特殊符号替换处理
+     * */
     public static String filterString(String str,String str1){
         return str.trim().replaceAll("[^0-9a-zA-Z\u4e00-\u9fa5.，,。？“”]+", str1);
     }

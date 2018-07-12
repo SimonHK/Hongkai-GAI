@@ -409,7 +409,7 @@ public class Nlpjob extends IJobHandler {
                     for (String snhtmltext : split) {
                         //String substring = snhtmltext.substring(snhtmltext.indexOf("<p>") + 3).trim();
                         List<Term> seg = BasicTokenizer.SEGMENT.enableCustomDictionary(true).seg(rul.getRuleformula());
-                        String pcrcontent1 = GraphAiUtils.filterString(snhtmltext);
+                        String pcrcontent1 = GraphAiUtils.pfilterString(GraphAiUtils.filterString(snhtmltext));
                         List<Term> tex1 = BasicTokenizer.SEGMENT.enableCustomDictionary(true).seg(pcrcontent1);
                         List<String> sentenceList = HanLP.extractSummary(pcrcontent1, sentenceCont);
                         //取出要比对的句子
