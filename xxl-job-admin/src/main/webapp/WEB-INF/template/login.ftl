@@ -9,7 +9,7 @@
 <body class="hold-transition login-page">
 	<div class="login-box">
 		<div class="login-logo">
-			<a><b>蝶应智能调度平台</b>分布式</a>
+			<a><b>蝶应智能感知平台</b>分布式</a>
 		</div>
 		<form id="loginForm" method="post" >
 			<div class="login-box-body">
