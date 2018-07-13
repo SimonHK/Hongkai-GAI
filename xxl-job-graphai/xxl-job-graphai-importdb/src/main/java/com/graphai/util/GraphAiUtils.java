@@ -47,8 +47,8 @@ public class GraphAiUtils {
             String[] split = locationnameas.split(",");
             if (ruleNature.equals(Nature.nt.toString().trim())) {
                 CustomDictionary.insert(locationname, "nt 1024");
-                for(String loceas : split){
-                    if(!StringUtils.isNullOrEmpty(loceas)){
+                for (String loceas : split) {
+                    if (!StringUtils.isNullOrEmpty(loceas)) {
                         CustomDictionary.insert(loceas, "nt 1024");
                     }
                 }
@@ -89,18 +89,18 @@ public class GraphAiUtils {
             }
             if (natu.equals(Nature.nt.toString().trim())) {
 
-                for(Locations locations:rule){
+                for (Locations locations : rule) {
                     String locationid = locations.getLocationid();
                     String locationname = locations.getLocationname();
                     String locationalias = locations.getLocationalias();
                     String[] split = locationalias.split(",");
                     int i = 0;
-                    for(String sp:split){
-                        if(sp.equals(word) || word.contains(sp)){
+                    for (String sp : split) {
+                        if (sp.equals(word) || word.contains(sp)) {
                             i++;
                         }
                     }
-                    if(locationname.equals(word) || i > 0 ){
+                    if (locationname.equals(word) || i > 0) {
                         orgLocsid.append(locationid).append(",");
                         sblocal.append(locationname).append(",");
                     }
@@ -109,7 +109,6 @@ public class GraphAiUtils {
             /*if(natu.equals(Nature.mq.toString().trim())){
                 sbTime.append(word).append(",");
             }*/
-
 
 
         }
@@ -126,9 +125,8 @@ public class GraphAiUtils {
         orgLocsid.setLength(0);
 
 
-
         // StringBuffer sbOrg = new StringBuffer("");
-        if(!StringUtils.isNullOrEmpty(orglocalIds)) {
+        if (!StringUtils.isNullOrEmpty(orglocalIds)) {
             AnalysisResult analysisResult = new AnalysisResult();
             analysisResult.setAnalysisWord(orglocal);
             analysisResult.setAnalysisSentence(texts);
@@ -231,77 +229,63 @@ public class GraphAiUtils {
         //取出要比对的句子
         StringBuffer sbnr = new StringBuffer("");
         StringBuffer sblocal = new StringBuffer("");
-        StringBuffer sbTime = new StringBuffer("");
+        //StringBuffer sbTime = new StringBuffer("");
         StringBuffer orgLocsid = new StringBuffer("");
         long startTime = System.currentTimeMillis();
-        XxlJobLogger.log("处理当前事件运行开始时间[" + startTime+"]");
+        XxlJobLogger.log("处理当前事件运行开始时间[" + startTime + "]");
+        //分析语料中含有人名的内容
+        for (Term tenr : seg) {
+            String natunr = tenr.nature.toString().trim();
+            String wordnr = tenr.word.toString().trim();
+            if (natunr.equals(Nature.nr.toString().trim())) {
+                sbnr.append(wordnr).append(",");
+            }
+        }
+        String persionnames = GraphStringUtils.formatRepetition(sbnr.toString());
+        sbnr.setLength(0);
+        //分析语料中含有机构及实体地域的内容
+        AnalysisResult analysisResult = null;
         for (Term tes : seg) {
             String natu = tes.nature.toString().trim();
             String word = tes.word.toString().trim();
-            if (natu.equals(Nature.nr.toString().trim())) {
-                sbnr.append(word).append(",");
-            }
             if (natu.equals(Nature.nt.toString().trim())) {
-                //Long dbSize = getDbSize();
-                //System.out.println("开始遍历机构信息：" + startTime);
-                //for (long ii = 1; ii < dbSize; ii++) {
-
-                    //System.out.print("[0]"+hvals.get(0)+"[1]"+hvals.get(0)+"[2]"+hvals.get(0));
-                //System.out.println("debug::::::::"+word);
-                //String s = jedis.get("2005d1f9f805e5cc4e52df0015c0ee93");
                 String ssss = MD5.stringToMsqlMD5(word);
-               // System.out.println("中文转MD="+ssss);
+                // System.out.println("中文转MD="+ssss);
                 Map<String, String> stringStringMap = jedis.hgetAll(ssss);
                 String locationid = stringStringMap.get("locationid");
                 //System.out.println("============="+locationid);
-                if(!StringUtils.isNullOrEmpty(locationid)){
-                    orgLocsid.append(locationid).append(",");
-                    sblocal.append(word).append(",");
+                if (!StringUtils.isNullOrEmpty(locationid)) {
+                    analysisResult = new AnalysisResult();
+                    analysisResult.setAnalysisWord(word);
+                    analysisResult.setAnalysisSentence(texts);
+                    analysisResult.setSentencePersonName(persionnames);
+                    //analysisResult.setSentenceTimes(timesb);
+                    analysisResult.setLocationids(locationid);
+                    analysisResult.setAnalysisNature(Nature.nt.toString().trim());
+                    analysisResults.add(analysisResult);
+
                     //System.out.println("满足结果：【"+word+"】与机构【" + locationname+"】及别名【"+locationalias+"】");
-                    XxlJobLogger.log("满足location结果：【"+word+"】与locationID【" + locationid+"】");
+                    XxlJobLogger.log("满足location结果：【" + word + "】与locationID【" + locationid + "】");
                 }
                 //}
 
-               // System.out.print("结束结束遍历时间：" + endTime);
+                // System.out.print("结束结束遍历时间：" + endTime);
                 //System.out.println("遍历处理运行时间： " + (endTime - startTime) + "ms");
             }
         }
         long endTime = System.currentTimeMillis(); //获取结束时间
         XxlJobLogger.log("处理当前事件运行结束时间： " + (endTime - startTime) + "ms");
-        String persionnames = GraphStringUtils.formatRepetition(sbnr.toString());
-        sbnr.setLength(0);
-
-        String orglocal = GraphStringUtils.formatRepetition(sblocal.toString());
-        sblocal.setLength(0);
-
-        String timesb = GraphStringUtils.formatRepetition(sbTime.toString());
-        sbTime.setLength(0);
-
-        String orglocalIds = GraphStringUtils.formatRepetition(orgLocsid.toString());
-        orgLocsid.setLength(0);
-
-        if(!StringUtils.isNullOrEmpty(orglocalIds)) {
-            AnalysisResult analysisResult = new AnalysisResult();
-            analysisResult.setAnalysisWord(orglocal);
-            analysisResult.setAnalysisSentence(texts);
-            analysisResult.setSentencePersonName(persionnames);
-            analysisResult.setSentenceTimes(timesb);
-            analysisResult.setLocationids(orglocalIds);
-            analysisResult.setAnalysisNature(Nature.nt.toString().trim());
-            analysisResults.add(analysisResult);
-        }
 
         return analysisResults;
     }
 
 
-        public static Long getDbSize() {
-            return jedis.dbSize();
-        }
+    public static Long getDbSize() {
+        return jedis.dbSize();
+    }
 
 
-
-        private static boolean isIndexOf(String source, String word){
+    private static boolean isIndexOf(String source, String word) {
         boolean index = false;
         String s = null;
         String s1 = null;
@@ -311,7 +295,7 @@ public class GraphAiUtils {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        if(s.indexOf(s1) != -1){
+        if (s.indexOf(s1) != -1) {
             index = true;
         }
         return index;
