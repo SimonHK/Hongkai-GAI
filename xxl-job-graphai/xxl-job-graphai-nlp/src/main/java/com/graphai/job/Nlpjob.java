@@ -77,7 +77,7 @@ public class Nlpjob extends IJobHandler {
         XxlJobLogger.log("当前获取准备分析的语料为：【" + data.size() + "】条");
         /**获取规则内容*/
         List<Nlprule> nlprules = findNlprule(param);
-        //XxlJobLogger.log("准备用于分析语料的规则数量为：【"+nlprules.size()+"】条");
+        XxlJobLogger.log("准备用于分析语料的规则数量为：【"+nlprules.size()+"】条");
         /**
          //开始分析根据语料的切分段落后获取的的内容进行nlp分析，参数 sentenceCont 是摘要的数量，
          // 如果是一段内容摘要的数量可以设置为1，
@@ -85,7 +85,7 @@ public class Nlpjob extends IJobHandler {
          */
         List<RulePressObject> ruleformles = ruleformles(nlprules, data, 1);
 
-        //XxlJobLogger.log("满足规则的语料为：【"+ruleformles.size()+"】条");
+        XxlJobLogger.log("满足规则的语料为：【"+ruleformles.size()+"】条");
 
         /* *//**处理分析结果*//*
         List<RulePressObject> ls = getAnalysis(ruleformles);
@@ -146,9 +146,9 @@ public class Nlpjob extends IJobHandler {
         inDb = saveStoreresult(storeresult);
         //XxlJobLogger.log("入库时间是：【" + nowTime + "】");
         //XxlJobLogger.log("内容时间是：【" + rPressObject.getTextTime() + "】");
-        XxlJobLogger.log("在规则《" + rPressObject.getRuleName() + "》的公式：【" + rPressObject.getRuleText()+ "】风险级别：【"+rPressObject.getRuletype()+"】");
+        //XxlJobLogger.log("在规则《" + rPressObject.getRuleName() + "》的公式：【" + rPressObject.getRuleText()+ "】风险级别：【"+rPressObject.getRuletype()+"】");
         //XxlJobLogger.log("符合分析计算结果为《" + rPressObject.getType() + "》");
-        XxlJobLogger.log("内容摘要：【" + rPressObject.getAbstractText() + "】");
+        //XxlJobLogger.log("内容摘要：【" + rPressObject.getAbstractText() + "】");
         //XxlJobLogger.log("入库内容是：【" + rPressObject.getTextContent() + "】");
         return inDb;
     }
@@ -401,11 +401,11 @@ public class Nlpjob extends IJobHandler {
                 if (!StringUtils.isEmpty(htmltext)) {
                     String url = crawlercontent.getCrawlerurl();
                     String ip = UrlPrecces.gotIp(url);
-                    XxlJobLogger.log("开始分析来源：【" + url + "】的网页内容！");
+                    //XxlJobLogger.log("开始分析来源：【" + url + "】的网页内容！");
                     WebSitSplit webSitSplit = new WebSitSplit();
                     String websitsplit = webSitSplit.websitsplit(WebSitSplitEnum.OTHER);
                     String[] split = htmltext.trim().split(websitsplit);
-                    XxlJobLogger.log("开始网页内容开始断句处理！当前内容分段数量【" + split.length + "】");
+                    //XxlJobLogger.log("开始网页内容开始断句处理！当前内容分段数量【" + split.length + "】");
                     for (String snhtmltext : split) {
                         //String substring = snhtmltext.substring(snhtmltext.indexOf("<p>") + 3).trim();
                         List<Term> seg = BasicTokenizer.SEGMENT.enableCustomDictionary(true).seg(rul.getRuleformula());
@@ -487,11 +487,10 @@ public class Nlpjob extends IJobHandler {
                         }
                     }
                     //texts 处理结束
-                    XxlJobLogger.log("当前符合条数为：【" + ls.size() + "】条！");
+                    //XxlJobLogger.log("当前符合条数为：【" + ls.size() + "】条！");
                 }
             }
         }
-
         return ls;
     }
 }
