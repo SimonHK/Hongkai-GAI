@@ -74,10 +74,10 @@ public class Nlpjob extends IJobHandler {
 
         /**获取要分析的数据*/
         List<Crawlercontent> data = findData(param);
-        XxlJobLogger.log("当前获取准备分析的语料为：【" + data.size() + "】条");
+        XxlJobLogger.log("待分析的语料为：【" + data.size() + "】条");
         /**获取规则内容*/
         List<Nlprule> nlprules = findNlprule(param);
-        XxlJobLogger.log("准备用于分析语料的规则数量为：【"+nlprules.size()+"】条");
+        XxlJobLogger.log("待分析规则数量：【"+nlprules.size()+"】条；开始分析......");
         /**
          //开始分析根据语料的切分段落后获取的的内容进行nlp分析，参数 sentenceCont 是摘要的数量，
          // 如果是一段内容摘要的数量可以设置为1，
@@ -85,7 +85,7 @@ public class Nlpjob extends IJobHandler {
          */
         List<RulePressObject> ruleformles = ruleformles(nlprules, data, 1);
 
-        XxlJobLogger.log("满足规则的语料为：【"+ruleformles.size()+"】条");
+        //XxlJobLogger.log("满足规则的语料为：【"+ruleformles.size()+"】条");
 
         /* *//**处理分析结果*//*
         List<RulePressObject> ls = getAnalysis(ruleformles);
@@ -274,7 +274,7 @@ public class Nlpjob extends IJobHandler {
 
     //从语料库中获取语料
     public List<Crawlercontent> findData(String param) {
-        XxlJobLogger.log("变更数据源！");
+        //XxlJobLogger.log("变更数据源！");
         DataSourceContextHolder.setDbType("ds1");     //注意这里在调用userMapper前切换到ds1的数据源
         List<Crawlercontent> crawlercontents = new ArrayList<Crawlercontent>(0);
         if (!StringUtils.isEmpty(param)) {
@@ -288,9 +288,9 @@ public class Nlpjob extends IJobHandler {
         } else {
             crawlercontents = crawlercontentDao.pageList();
         }
-        XxlJobLogger.log("查询出待分析内容【" + crawlercontents.size() + "】");
+        //XxlJobLogger.log("查询出待分析内容【" + crawlercontents.size() + "】");
         restoreDefaultDataSource();
-        XxlJobLogger.log("恢复默认数据源！");
+        //XxlJobLogger.log("恢复默认数据源！");
         return crawlercontents;
     }
 
@@ -309,7 +309,7 @@ public class Nlpjob extends IJobHandler {
             nlprules = nlpruleDao.pageList();
         }
         restoreDefaultDataSource();
-        XxlJobLogger.log("恢复默认数据源！");
+        //XxlJobLogger.log("恢复默认数据源！");
         return nlprules;
     }
 
@@ -327,7 +327,7 @@ public class Nlpjob extends IJobHandler {
         storeresults.setId(UuidUtil.get32UUID());
         int save = storeresoultDao.save(storeresults);
         restoreDefaultDataSource();
-        XxlJobLogger.log("恢复默认数据源！");
+        //XxlJobLogger.log("恢复默认数据源！");
         return save;
     }
 
@@ -391,6 +391,10 @@ public class Nlpjob extends IJobHandler {
         List<RulePressObject> ls = new ArrayList<>(0);
         RulePressObject rulePressObject = null;
         StringBuffer sb = new StringBuffer("");
+        int rulestepsize = 1;
+        int rulecountsize = rule.size();
+        //入库数量
+        int indbcount = 0;
         for (Nlprule rul : rule) {
             //System.out.println(rul);
             HanLP.Config.ShowTermNature = false;
@@ -462,7 +466,9 @@ public class Nlpjob extends IJobHandler {
 
                             /**处理分析结果*/
                             int i = inDbOperation(rulePressObject);
-
+                            if(i > 0 ){
+                                indbcount++;
+                            }
                             ls.add(rulePressObject);
                             //XxlJobLogger.log("----------------------------------------------------------------------");
                             //XxlJobLogger.log("公式类别：【" + rul.getRulename() + "】");
@@ -490,6 +496,9 @@ public class Nlpjob extends IJobHandler {
                     //XxlJobLogger.log("当前符合条数为：【" + ls.size() + "】条！");
                 }
             }
+            XxlJobLogger.log("当前规则入库：【" + indbcount + "】条！");
+            XxlJobLogger.log("剩余待分析规则：【" + (rulecountsize-rulestepsize) + "】");
+            rulestepsize++;
         }
         return ls;
     }
