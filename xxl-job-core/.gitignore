@@ -1,0 +1,25 @@
+#忽略IDE开发工具文件
+.DS_Store
+*/.DS_Store
+.settings
+.idea
+/apache-tomcat-*
+.classpath
+.project
+*.iml
+
+# 忽略编译后的文件
+*.class
+# 忽略JAR包文件
+*.jar
+*.war
+*.ear
+target
+/target
+*/target
+*/*/target
+/dbfile
+/doc
+/data
+/war
+
