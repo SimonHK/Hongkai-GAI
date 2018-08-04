@@ -41,7 +41,7 @@
 
     <select id="findPageListByTime" parameterType="java.util.HashMap" resultMap="CrawlercontentMap">
         SELECT <include refid="Base_Column_List" />
-        FROM crawlercontent  b where  TO_DAYS(#{nowtime}) = TO_DAYS(b.nowtime) Group By a.crawlertitle -- b where TO_DAYS(NOW()) = TO_DAYS(b.nowtime)
+        FROM crawlercontent  b where  TO_DAYS(#{nowtime}) = TO_DAYS(b.nowtime) Group By b.crawlertitle -- b where TO_DAYS(NOW()) = TO_DAYS(b.nowtime)
     </select>
 
     <insert id="save" parameterType="com.graphai.model.Crawlercontent">
