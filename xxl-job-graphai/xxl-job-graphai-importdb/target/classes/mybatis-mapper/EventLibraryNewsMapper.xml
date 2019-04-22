@@ -18,6 +18,7 @@
 		<result column="etime" property="etime"/>
 		<result column="entitycontent" property="entitycontent"/>
 		<result column="abstracttext" property="abstracttext"/>
+		<result column="ruletype" property="ruletype"/>
 	</resultMap>
 	<!-- 字段 -->
 	<sql id="Base_Column_List">
@@ -30,7 +31,8 @@
 		eventtime,
 		etime,
 		entitycontent,
-		abstracttext
+		abstracttext,
+		ruletype
 	</sql>
 
 	<select id="pageList" parameterType="java.util.HashMap" resultMap="eventlibrarynewsInfo">
@@ -39,16 +41,16 @@
 	</select>
 
 	<insert id="save" parameterType="com.graphai.model.Eventlibrarynews">
-		INSERT INTO eventlibrary_news ( `eventid`,`eventtype`, `entityname`, `personame`, `originallink`, `icid`, `eventtime`, `etime`, `entitycontent`, `abstracttext`)
-		values ( #{eventid},#{eventtype}, #{entityname}, #{personame}, #{originallink}, #{icid}, #{eventtime}, #{etime}, #{entitycontent}, #{abstracttext});
+		INSERT INTO eventlibrary_news ( `eventid`,`eventtype`, `entityname`, `personame`, `originallink`, `icid`, `eventtime`, `etime`, `entitycontent`, `abstracttext`, `ruletype`)
+		values ( #{eventid},#{eventtype}, #{entityname}, #{personame}, #{originallink}, #{icid}, #{eventtime}, #{etime}, #{entitycontent}, #{abstracttext}, #{ruletype});
 	</insert>
 
 	<insert id="insertBatch" parameterType="java.util.List">
 		INSERT INTO eventlibrary_news
-		( `eventid`,`eventtype`, `entityname`, `personame`, `originallink`, `icid`, `eventtime`, `etime`, `entitycontent`, `abstracttext`)
+		( `eventid`,`eventtype`, `entityname`, `personame`, `originallink`, `icid`, `eventtime`, `etime`, `entitycontent`, `abstracttext`, `ruletype`)
 		VALUES
 		<foreach collection ="list" index="index" item="com.graphai.model.Eventlibrarynews" separator =",">
-			( #{eventid},#{eventtype}, #{entityname}, #{personame}, #{originallink}, #{icid}, #{eventtime}, #{etime}, #{entitycontent}, #{abstracttext})
+			( #{eventid},#{eventtype}, #{entityname}, #{personame}, #{originallink}, #{icid}, #{eventtime}, #{etime}, #{entitycontent}, #{abstracttext}, #{ruletype})
 		</foreach >
 	</insert>
 	

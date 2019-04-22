@@ -80,7 +80,7 @@ public class NGetWeb implements PageProcessor {
         //Spider spider = Spider.create(new GithubRepoPageProcessor()).addUrl("https://github.com/code4craft").thread(1);
 
         //System.setProperty("selenuim_config", "/Users/hongkai/Development/GitHubSource/xxl-job/xxl-job-graphai/xxl-job-graphai-crawler/src/main/resources/drivers/mac/selenuimconfig.cfg");
-        Spider spider = Spider.create(new NGetWeb()).thread(2);
+        Spider spider = Spider.create(new NGetWeb()).thread(1);
                 //.setDownloader(new SeleniumDownloader("/Users/hongkai/Development/GitHubSource/xxl-job/xxl-job-graphai/xxl-job-graphai-crawler/src/main/resources/drivers/mac/chromedriver"))
 
         HttpClientDownloader downloader = new HttpClientDownloader() {
@@ -117,13 +117,14 @@ public class NGetWeb implements PageProcessor {
 
         String urlTemplate = url;
         List<String> storeurls = new ArrayList<>(10);
-        ResultItems resultItems = null;
+        ResultItems resultItems = new ResultItems();
         try {
-            resultItems = (ResultItems) spider.get(urlTemplate);
+            resultItems = spider.get(urlTemplate);
+
         } catch (Exception e) {
             System.out.print("爬取：【"+urlTemplate+"】链接的内容失败！！！");
         }
-        if(!resultItems.equals(null)) {
+        if(resultItems != null) {
             //处理副标题
             List<String> getH1 = resultItems.get("getH1");
             StringBuffer sbH1 = new StringBuffer("");
@@ -226,12 +227,12 @@ public class NGetWeb implements PageProcessor {
                 e.printStackTrace();
             }
             pageView = NGetWeb.getPageView(url2);
-            String allText = pageView.get("AllText").trim();
-            String pageTitle = pageView.get("PageTitle").trim();
-            String releaseTime = pageView.get("ReleaseTime").trim();
-            String allPage = pageView.get("AllPage").trim();
-            String allH1 = pageView.get("AllH1").trim();
-            String allUrls = pageView.get("AllUrls").trim();
+            String allText = StringUtils.isEmpty(pageView.get("AllText"))?"":pageView.get("AllText");
+            String pageTitle = StringUtils.isEmpty(pageView.get("PageTitle"))?"":pageView.get("PageTitle");
+            String releaseTime = StringUtils.isEmpty(pageView.get("ReleaseTime"))?"":pageView.get("ReleaseTime");
+            String allPage = StringUtils.isEmpty(pageView.get("AllPage"))?"":pageView.get("AllPage");
+            String allH1 = StringUtils.isEmpty(pageView.get("AllH1"))?"":pageView.get("AllH1");
+            String allUrls = StringUtils.isEmpty(pageView.get("AllUrls"))?"":pageView.get("AllUrls");
             System.out.println("============================================");
             System.out.println("页面标题：【" + pageTitle+"】");
             System.out.println("============================================");
@@ -241,10 +242,10 @@ public class NGetWeb implements PageProcessor {
             System.out.println("============================================");
             System.out.println("页面URL集合：【" + allUrls+"】");
             System.out.println("============================================");
-            /*System.out.println("页面文本内容:【" + allText+"】");
+            System.out.println("页面文本内容:【" + allText+"】");
             System.out.println("============================================");
             System.out.println("页面所有内容：【：" + allPage+"】");
-            System.out.println("============================================");*/
+            System.out.println("============================================");
             if (pageView.get(currentDeth + 1) == null) {
                 urlMap.put((currentDeth + 1), new HashMap<String, String>());
             }

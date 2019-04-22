@@ -24,6 +24,38 @@
 		FROM locations
 	</select>
 
+
+	<select id="locationCount" parameterType="java.lang.Integer" resultType="Integer">
+		select count(id) from locations
+		<!--<where>
+			<if test="priceBegin!=null">
+				and h.price > #{priceBegin}
+			</if>
+			<if test="priceEnd!=null">
+				and h.price   <![CDATA[<]]>  #{priceEnd}
+			</if>
+			&lt;!&ndash; h.street_id是数据库的字段名 &ndash;&gt;
+			<if test="street!=null">
+				and h.street_id = #{street.id}
+			</if>
+			&lt;!&ndash; h.type_id是数据库的字段名 &ndash;&gt;
+			<if test="types!=null">
+				and h.type_id = #{types.id}
+			</if>
+			<if test="floorageBegin!=null">
+				and h.floorage > #{floorageBegin}
+			</if>
+			<if test="floorageEnd!=null">
+				and h.floorage <![CDATA[<]]>  #{floorageEnd}
+			</if>
+		</where>-->
+	</select>
+
+	<!-- 分页动态查询房屋信息 -->
+	<select id="getlocationCountByDymanic" parameterType="java.util.HashMap" resultMap="locationsInfo">
+		select <include refid="Base_Column_List" /> from locations  limit #{stratRow},#{endRow}
+	</select>
+
 	<insert id="save" parameterType="com.graphai.model.Locations">
 		INSERT INTO eventlibrary_news ( `locationid`,`locationname`, `locationalias`)
 		values ( #{locationid},#{locationname}, #{locationalias});

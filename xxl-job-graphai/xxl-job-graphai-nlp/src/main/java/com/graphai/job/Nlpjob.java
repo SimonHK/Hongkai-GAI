@@ -422,7 +422,7 @@ public class Nlpjob extends IJobHandler {
                         List<String> sentenceList = HanLP.extractSummary(pcrcontent1, sentenceCont);
                         //取出要比对的句子
                         // StringBuffer sbOrg = new StringBuffer("");
-                        //使用之前清空操作
+                        //使用之前清空操作防止减少内存占用率
                         sb.setLength(0);
                         for (Term tex1s : tex1) {
                             sb.append(tex1s.word).append(",");

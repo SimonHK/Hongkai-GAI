@@ -12,9 +12,23 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>xxl-job-graphai-crawler</module>
-        <module>xxl-job-graphai-nlp</module>
-        <module>xxl-job-graphai-importdb</module>
+        <module>xxl-job-graphai-crawler</module><!---->
+        <module>xxl-job-graphai-nlp</module><!--自然语言分析NLP-->
+       <!-- <module>xxl-job-graphai-importdb</module>--><!--数据库管理模块-->
+        <module>xxl-crawler</module><!--分布式爬虫框架-->
+        <module>xxl-rpc</module><!--分布式服务框架，提供稳定高性能的RPC远程服务调用功能。-->
+        <module>xxl-mq</module><!--轻量级分布式消息队列，拥有 "水平扩展、高可用、海量数据堆积、单机TPS过10万、毫秒级投递"-->
+        <module>xxl-conf</module><!--分布式配置管理平台，拥有"轻量级、秒级动态推送、多环境、跨语言、跨机房、配置监听、权限控制、版本回滚-->
+        <module>xxl-api</module><!--API管理平台-->
+        <module>xxl-cache</module><!--分布式缓存管理平台-->
+        <module>xxl-code-generator</module><!--多层的代码生成平台-->
+        <module>xxl-excel</module><!--灵活的Java对象和Excel文档相互转换的工具-->
+        <module>xxl-glue</module><!--动态："可执行逻辑单元（GLUE）"支持在线开发、动态推送更新、实时编译生效, 扩展JVM的动态语言支持;-->
+        <module>xxl-hex</module><!--是一个简单易用的WebAPI框架, 拥有 "面向对象、数据加密、跨语言" 的特点。-->
+        <module>xxl-registry</module><!--轻量级分布式服务注册中心-->
+        <module>xxl-search</module><!--搜索应用-->
+        <module>xxl-sso</module><!--是一个分布式单点登录框架-->
+        <!--<module>neural</module>--><!--微服务神经元-->
     </modules>
 
 </project>
